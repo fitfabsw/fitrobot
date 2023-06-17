@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'tf_converter_node = fitrobot.tf_converter_node:main'
+            'tf_converter_node = fitrobot.tf_converter_node:main',
+            'service = fitrobot.service_member_function:main',
+            'client = fitrobot.client_member_function:main',
         ],
     },
 )

@@ -7,6 +7,9 @@
   <maintainer email="jason.kj.ke@fit-foxconn.com">ubuntu</maintainer>
   <license>N/A</license>
 
+  <depend>rclpy</depend>
+
+  <exec_depend>fitrobot_interfaces</exec_depend>
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
