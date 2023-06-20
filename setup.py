@@ -21,8 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'tf_converter_node = fitrobot.tf_converter_node:main',
-            'service = fitrobot.service_member_function:main',
-            'save_map = fitrobot.client_member_function:main',
+            'save_map_service = fitrobot.save_map_service:main',
+            'save_map = fitrobot.save_map_client:main',
         ],
     },
 )
