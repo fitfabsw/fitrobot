@@ -11,7 +11,7 @@ class MinimalClientAsync(Node):
         super().__init__('minimal_client_async')
         self.cli = self.create_client(SaveMap, 'save_map')
         while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
+            self.get_logger().info('儲存地圖的service尚未啟動，等待中...')
         self.req = SaveMap.Request()
 
     def send_request(self, map_name):
@@ -26,7 +26,7 @@ def main():
 
     minimal_client = MinimalClientAsync()
     response = minimal_client.send_request(sys.argv[1])
-    minimal_client.get_logger().info(f'Result of save_map: {response.ack}')
+    print(f'{response.ack}')
 
     minimal_client.destroy_node()
     rclpy.shutdown()
