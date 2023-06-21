@@ -7,10 +7,10 @@ from rclpy.node import Node
 
 MAP_FOLDER = Path.home().joinpath("fitrobot_map")
 
-class MinimalService(Node):
+class SaveMapService(Node):
 
     def __init__(self):
-        super().__init__('minimal_service')
+        super().__init__('save_map_service')
         self.srv = self.create_service(SaveMap, 'save_map', self.save_map_callback)
         MAP_FOLDER.mkdir(parents=True, exist_ok=True)
 
@@ -29,8 +29,8 @@ class MinimalService(Node):
 
 def main():
     rclpy.init()
-    minimal_service = MinimalService()
-    rclpy.spin(minimal_service)
+    save_map_service = SaveMapService()
+    rclpy.spin(save_map_service)
     rclpy.shutdown()
 
 
