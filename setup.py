@@ -23,6 +23,8 @@ setup(
             'tf_converter_node = fitrobot.tf_converter_node:main',
             'save_map_service = fitrobot.save_map_service:main',
             'save_map = fitrobot.save_map_client:main',
+            'list_map_service = fitrobot.list_map_service:main',
+            'list_map = fitrobot.list_map_client:main',
         ],
     },
 )
