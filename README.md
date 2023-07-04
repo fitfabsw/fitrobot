@@ -22,7 +22,7 @@ cd ~/ros2_ws/src
 git clone git@github.com:fitfabsw/fitrobot.git
 cd ..
 colcon build --packages-select fitrobot
-source install/local_setup.bash
+source install/setup.bash
 ```
 如果有修改到 tf_converter_node.py，需要重新跑colcon build；如果需要頻繁修改 tf_converter_node.py，不想每次都重新build的話，可以跑一次以下指令：
 ```
