@@ -4,7 +4,7 @@ package_name = 'fitrobot'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.0.1',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -22,9 +22,7 @@ setup(
         'console_scripts': [
             'tf_converter_node = fitrobot.tf_converter_node:main',
             'save_map_service = fitrobot.save_map_service:main',
-            'save_map = fitrobot.save_map_client:main',
             'list_map_service = fitrobot.list_map_service:main',
-            'list_map = fitrobot.list_map_client:main',
         ],
     },
 )
