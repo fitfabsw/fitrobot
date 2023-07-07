@@ -1,0 +1,24 @@
+撰寫Service
+1. 開啟基本服務如articubot bringup、rosbridge、custom pose等
+2. 接收參數決定要開啟slam的launch file或navigation的launch file
+
+撰寫launch file
+1. slam的launch file
+2. navigation的launch file
+
+
+
+===================================
+# 執行 linux command
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess
+
+
+def generate_launch_description():
+
+    return LaunchDescription([
+
+        ExecuteProcess(
+            cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so'],
+            output='screen')
+    ])
