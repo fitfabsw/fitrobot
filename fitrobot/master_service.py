@@ -13,7 +13,7 @@ class MasterService(Node):
         super().__init__('master_service')
         self.srv = self.create_service(Master, 'master', self.master_callback)
         self.process_list = []
-        p = Popen(["ros2", "launch", "fitrobot", "articubot.launch.py"], stdout=PIPE, stderr=PIPE)
+        p = Popen(["ros2", "launch", "fitrobot", "bringup.launch.py"], stdout=PIPE, stderr=PIPE)
 
     def master_callback(self, request, response):
         request_action = request.request_action
