@@ -2,14 +2,12 @@ from subprocess import PIPE, Popen
 
 import rclpy
 from rclpy.node import Node
-from common.utils import get_logger
 
 
 class BridgeNode(Node):
     def __init__(self):
         super().__init__('bridge_node')
-        self.logger = get_logger('rosbridge')
-        self.logger.debug(f'啟動bridge_node')
+        self.get_logger().debug(f'啟動bridge_node')
         p = Popen(["python3", "../scripts/bridge.py"], stdout=PIPE, stderr=PIPE)
         while p.poll() is None:
             o = p.stdout.readline()

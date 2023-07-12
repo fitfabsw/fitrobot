@@ -27,20 +27,20 @@ class MasterService(Node):
         return response
     
     def clean_up(self):
-        print("清理已開啟服務")
+        self.get_logger().debug("清理已開啟服務")
         while self.process_list:
             p = self.process_list.pop()
-            print(f"清理process:{p.pid}")
+            self.get_logger().debug(f"清理process:{p.pid}")
             self.kill_process_and_children(p.pid)
             
     def run_navigation(self):
-        print("\n啟動導航服務")
+        self.get_logger().debug("\n啟動導航服務")
         self.clean_up()
         p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py"], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
 
     def run_slam(self):
-        print("\n啟動建圖服務")
+        self.get_logger().debug("\n啟動建圖服務")
         self.clean_up()
         p = Popen(["ros2", "launch", "fitrobot", "slam.launch.py"], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)

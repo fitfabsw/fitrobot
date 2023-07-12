@@ -35,8 +35,4 @@ def generate_launch_description():
             package='fitrobot',
             executable='bridge_node',
         ),
-        # Node(
-        #     package='fitrobot',
-        #     executable='tf_converter_node',
-        # ),
     ])
