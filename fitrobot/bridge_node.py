@@ -1,11 +1,7 @@
-import random
-import json
-from subprocess import PIPE, Popen, run
+from subprocess import PIPE, Popen
 
 import rclpy
 from rclpy.node import Node
-from flask import Flask, request
-from flask_socketio import send, emit, Namespace, SocketIO
 from common.utils import get_logger
 
 
