@@ -18,11 +18,6 @@ class ServerNode(Node):
         self.socketio = SocketIO(app, cors_allowed_origins='*', ping_timeout=25, max_http_buffer_size=500000000, ping_interval=7200, always_connect=True)
         self.socketio.on_namespace(RosBridgeNamespace('/rosbridge'))
         self.socketio.run(app, host='0.0.0.0', port='5556', allow_unsafe_werkzeug=True)
-    
-    def destroy_node(self):
-        super().destroy_node()
-        self.socketio.stop()
-        self.logger.debug(f'終止server_node')
 
 
 class RosBridgeNamespace(Namespace):
@@ -50,7 +45,7 @@ class RosBridgeNamespace(Namespace):
 def main():
     rclpy.init()
     node = ServerNode()
-    # rclpy.spin(node)
+    # rclpy.spin(node)  # ServerNode跑socketio.run之後本身就blocking，所以不確定需不需要使用spin，使用的話會變成雙重blocking
     # node.destroy_node()
     rclpy.shutdown()
 
