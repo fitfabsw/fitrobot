@@ -11,6 +11,7 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ['package.xml']),
         (f"share/{package_name}/launch", glob("launch/*.launch.py")),
+        (f"share/{package_name}/common", glob("common/*.py")),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -22,6 +23,7 @@ setup(
     entry_points={
         'console_scripts': [
             'tf_converter_node = fitrobot.tf_converter_node:main',
+            'server_node = fitrobot.server_node:main',
             'master_service = fitrobot.master_service:main',
             'save_map_service = fitrobot.save_map_service:main',
             'list_map_service = fitrobot.list_map_service:main',
