@@ -25,7 +25,8 @@ verbose = 0 #0: Low message, 1: Enable
 lock = Lock()
 
 sio = socketio.Client()
-sio.connect('ws://45.76.210.253:5556', namespaces=['/rosbridge'])
+sio.connect('ws://127.0.0.1:5556', namespaces=['/rosbridge'])
+# sio.connect('ws://45.76.210.253:5556', namespaces=['/rosbridge'])
 # sio.connect('ws://172.20.10.6:5556', namespaces=['/rosbridge'])
 # sio.connect('ws://192.168.242.106:5556', namespaces=['/rosbridge'])
 
