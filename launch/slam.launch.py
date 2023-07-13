@@ -15,5 +15,6 @@ def generate_launch_description():
                     "online_async_launch.py",
                 )
             ),
+            launch_arguments = {"slam_params_file": "/home/pi/zbot_ws/src/articubot_one/config/mapper_params_online_async.yaml"}.items()
         ),
     ])
