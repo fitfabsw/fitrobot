@@ -14,7 +14,7 @@ class CustomTFListener(Node):
 
         self.pose_publisher = self.create_publisher(PoseWithCovarianceStamped, '/custom_pose', 10)
 
-        self.timer = self.create_timer(0.5, self.timer_callback)  # Check every 500ms
+        self.timer = self.create_timer(1.0, self.timer_callback)  # Check every 1 second
 
     def timer_callback(self):
         try:
