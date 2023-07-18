@@ -25,7 +25,7 @@ class ListMapService(Node):
     def list_files_in_folder(self, folder_path):
         file_names = []
         for file_name in os.listdir(folder_path):
-            if file_name.endswith('.pgm') and os.path.isfile(os.path.join(folder_path, file_name)):
+            if file_name.endswith('.yaml') and os.path.isfile(os.path.join(folder_path, file_name)):
                 mli = MapListItem()
                 mli.map_name = file_name
                 file_names.append(mli)
