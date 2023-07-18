@@ -11,8 +11,9 @@ from common.utils import get_logger
 class ServerNode(Node):
     def __init__(self):
         super().__init__('server_node')
-
-        self.get_logger().debug(f'啟動server_node')
+        
+        self.logger = get_logger('rosbridge')
+        self.logger.debug(f'啟動server_node')
         app = Flask(__name__)
         app.config['SECRETE_KEY'] = 'secret!'
         self.socketio = SocketIO(app, cors_allowed_origins='*', ping_timeout=25, max_http_buffer_size=500000000, ping_interval=7200, always_connect=True)
