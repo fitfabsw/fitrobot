@@ -22,7 +22,7 @@ class MasterService(Node):
         if request_action == "slam":
             self.run_slam()
         elif request_action == "navigation":
-            self.run_navigation(map_path=request_param)
+            self.run_navigation(map_name=request_param)
         else:
             pass
 
@@ -35,10 +35,11 @@ class MasterService(Node):
             self.get_logger().debug(f"清理process:{p.pid}")
             self.kill_process_and_children(p.pid)
             
-    def run_navigation(self, map_path):
+    def run_navigation(self, map_name):
         self.get_logger().debug("\n啟動導航服務")
         self.clean_up()
-        p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py", f"map:={map_path}"], stdout=PIPE, stderr=PIPE)
+        map_path = f"map:=/home/pi/fitrobot_map/{map_name}"
+        p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
 
     def run_slam(self):
