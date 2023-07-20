@@ -367,7 +367,7 @@ def call_service(service_name, service_type, params=None):
     request = roslibpy.ServiceRequest(params)
     result = None
     try:
-        result = dict(service.call(request, timeout=3))
+        result = dict(service.call(request, timeout=10))
     except Exception as e:
         print(f"Error:{e}")
     return result
