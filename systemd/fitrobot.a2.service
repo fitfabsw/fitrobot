@@ -1,0 +1,14 @@
+[Unit]
+Description=This is the articubot bringup service
+# StartLimitIntervalSec=360
+# StartLimitBurst=3
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/ros2_ws
+ExecStart=/bin/bash -c "source /opt/ros/galactic/setup.bash && source /home/pi/ros2_ws/install/setup.bash && /opt/ros/galactic/bin/ros2 launch articubot_one launch_robot.launch.py"
+# Restart=on-failure
+# RestartSec=120s
+
+[Install]
+WantedBy=multi-user.target

@@ -42,3 +42,15 @@ ros2 run fitrobot tf_converter_node
 此時會產生 **/custom_pose** 這個topic，回傳的座標格式跟amcl_pose一樣，message type都是 **geometry_msgs/msg/PoseWithCovarianceStamped**
 
 
+
+<br/>
+
+## 系統服務
+
+將systemd底下的3個檔案放到機器人的/etc/systemd/system資料夾下，再下以下指令
+```
+sudo systemctl daemon-reload
+sudo systemctl enable --now fitrobot.a2.service
+sudo systemctl enable --now fitrobot.bringup.service
+sudo systemctl enable --now fitrobot.master.service
+```

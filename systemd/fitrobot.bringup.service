@@ -1,0 +1,18 @@
+[Unit]
+Description=This is the fitrobot bringup service
+# StartLimitIntervalSec=360
+# StartLimitBurst=3
+TimeoutStartSec=30
+Requires=fitrobot.a2.service
+After=fitrobot.a2.service
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/ros2_ws
+ExecStartPre=/bin/sleep 30
+ExecStart=/bin/bash -c "source /opt/ros/galactic/setup.bash && source /home/pi/ros2_ws/install/setup.bash && /opt/ros/galactic/bin/ros2 launch fitrobot bringup.launch.py"
+# Restart=on-failure
+# RestartSec=120s
+
+[Install]
+WantedBy=multi-user.target
