@@ -120,10 +120,10 @@ class RosbridgeNamespace(socketio.ClientNamespace):
         
     def ini_nav(self, x = 2.0, y = 0.5, z = 1.0, w = 0.0):
         
-        ix = float(x) if x != None else None
-        iy = float(y) if y != None else None
-        iz = float(z) if z != None else None
-        iw = float(w) if w != None else None
+        ix = float(x) if x is not None else None
+        iy = float(y) if y is not None else None
+        iz = float(z) if z is not None else None
+        iw = float(w) if w is not None else None
         lock.acquire()
         self.navigator = BasicNavigator()
 
@@ -137,13 +137,13 @@ class RosbridgeNamespace(socketio.ClientNamespace):
         
         #initial_pose.pose.position.x = 2.0
         #initial_pose.pose.position.y = 0.5
-        if ix != None:
+        if ix is not None:
             initial_pose.pose.position.x = ix
-        if iy != None:
+        if iy is not None:
             initial_pose.pose.position.y = iy
-        if iz != None:
+        if iz is not None:
             initial_pose.pose.orientation.z = iz
-        if iw != None:
+        if iw is not None:
             initial_pose.pose.orientation.w = iw
         self.navigator.setInitialPose(initial_pose)
         lock.release()
@@ -172,13 +172,13 @@ class RosbridgeNamespace(socketio.ClientNamespace):
         self.goal_pose.header.stamp = self.navigator.get_clock().now().to_msg()
         #self.goal_pose.pose.position.x = -2.0
         #self.goal_pose.pose.position.y = -0.5
-        if dest_x != None:
+        if dest_x is not None:
             self.goal_pose.pose.position.x = dest_x
-        if dest_y != None:
+        if dest_y is not None:
             self.goal_pose.pose.position.y = dest_y
-        if dest_z != None:
+        if dest_z is not None:
             self.goal_pose.pose.orientation.z = dest_z
-        if dest_w != None:
+        if dest_w is not None:
             self.goal_pose.pose.orientation.w = dest_w                 
 
         # sanity check a valid path exists
@@ -247,17 +247,17 @@ class RosbridgeNamespace(socketio.ClientNamespace):
         data_id = data_dict.get('id', None)
         tp_type = topic_type.get(topic, None) if topic else None
         
-        if tp_type != None and ope == 'publish':
+        if tp_type is not None and ope == 'publish':
             talker=Talker(topic, tp_type)
             lock.acquire()
             talker.talk(data_dict['msg'])
             lock.release()
-        elif tp_type != None and ope == 'subscribe':
+        elif tp_type is not None and ope == 'subscribe':
             lock.acquire()
             subscriber[topic] = roslibpy.Topic(client, topic, tp_type)
             subscriber[topic].subscribe(fp_callback(topic))
             lock.release()
-        elif tp_type != None and ope == 'unsubscribe':
+        elif tp_type is not None and ope == 'unsubscribe':
             unsub = subscriber.get(topic, None)
             if unsub:
                 lock.acquire()
@@ -305,7 +305,7 @@ class RosbridgeNamespace(socketio.ClientNamespace):
             lock.release() 
             print(result.stdout)
             print(result.stderr)
-        elif ope == 'call_service' and service != None and data_id != None:
+        elif ope == 'call_service' and service is not None and data_id is not None:
             msg_dict = data_dict.get('args', None)
             lock.acquire()
             result = call_service(service, data_id, msg_dict)
@@ -318,31 +318,19 @@ class RosbridgeNamespace(socketio.ClientNamespace):
 sio.register_namespace(RosbridgeNamespace('/rosbridge'))
 
 def emit_response(service, result):
-    response = {}
-    op = "service_response"
+    response = {
+        'header': {'frame_id': service[1:]},
+        'op': "service_response",
+        'service': service,
+    }
     values = []
-    out = {}
-    frame_id = {}
-    frame_id['frame_id'] = service[1:]
-    response['header'] = frame_id
-    response['op'] = op
-    response['service'] = service
-    if result != None:
-        r = False
+    out = {'out':'null'}
+    r = False
+    if result:
         ack = result.get('ack', None)
         try:
-            if ack != None:
-                if  ack != 'FAIL':
-                    r = True
-            else:
+            if ack is None or ack !='FAIL':
                 r = True
-            out['out'] = json.dumps(result)
-        except:
-            r = False
-            out['out'] = str(result)
-    else:
-        r = False
-        try:
             out['out'] = json.dumps(result)
         except:
             out['out'] = str(result)
