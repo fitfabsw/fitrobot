@@ -47,6 +47,8 @@ class MasterService(Node):
         self.clean_up()
         p = Popen(["ros2", "launch", "fitrobot", "slam.launch.py"], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
+        p = Popen(["ros2", "run", "usb_cam", "usb_cam_node_exe"], stdout=PIPE, stderr=PIPE)
+        self.process_list.append(p)
 
 
     def kill_process_and_children(self, pid):
