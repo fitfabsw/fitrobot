@@ -29,6 +29,7 @@ setup(
             'master_service = fitrobot.master_service:main',
             'save_map_service = fitrobot.save_map_service:main',
             'list_map_service = fitrobot.list_map_service:main',
+            'nav_through_poses = fitrobot.nav_through_poses:main',
         ],
     },
 )
