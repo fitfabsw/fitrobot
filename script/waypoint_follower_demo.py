@@ -19,13 +19,15 @@ from geometry_msgs.msg import PoseStamped
 from rclpy.duration import Duration
 import rclpy
 
-from scripts.robot_navigator import BasicNavigator, NavigationResult
+from script.robot_navigator import BasicNavigator, NavigationResult
 
 '''
 Basic navigation demo to go to poses.
 '''
+
+
 def main():
-    rclpy.init()
+    # rclpy.init()
 
     navigator = BasicNavigator()
 
@@ -33,7 +35,7 @@ def main():
     initial_pose = PoseStamped()
     initial_pose.header.frame_id = 'map'
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x = 0.5
+    initial_pose.pose.position.x = 1.5
     initial_pose.pose.position.y = 4.5
     initial_pose.pose.orientation.z = 0.0
     initial_pose.pose.orientation.w = 1.0
@@ -55,7 +57,7 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    # set our demo's goal poses
+    # set our demo's goal poses to follow
     goal_poses = []
     goal_pose1 = PoseStamped()
     goal_pose1.header.frame_id = 'map'
@@ -75,7 +77,6 @@ def main():
     goal_pose2.pose.orientation.w = 0.707
     goal_pose2.pose.orientation.z = 0.707
     goal_poses.append(goal_pose2)
-
     goal_pose3 = PoseStamped()
     goal_pose3.header.frame_id = 'map'
     goal_pose3.header.stamp = navigator.get_clock().now().to_msg()
@@ -84,7 +85,6 @@ def main():
     goal_pose3.pose.orientation.w = 0.707
     goal_pose3.pose.orientation.z = 0.707
     goal_poses.append(goal_pose3)
-
     goal_pose4 = PoseStamped()
     goal_pose4.header.frame_id = 'map'
     goal_pose4.header.stamp = navigator.get_clock().now().to_msg()
@@ -93,11 +93,11 @@ def main():
     goal_pose4.pose.orientation.w = 0.707
     goal_pose4.pose.orientation.z = 0.707
     goal_poses.append(goal_pose4)
-
     # sanity check a valid path exists
-    # path = navigator.getPathThroughPoses(initial_pose, goal_poses)
+    # path = navigator.getPath(initial_pose, goal_pose1)
 
-    navigator.goThroughPoses(goal_poses)
+    nav_start = navigator.get_clock().now()
+    navigator.followWaypoints(goal_poses)
 
     i = 0
     while not navigator.isNavComplete():
@@ -111,24 +111,26 @@ def main():
         i = i + 1
         feedback = navigator.getFeedback()
         if feedback and i % 5 == 0:
-            print('Estimated time of arrival: ' + '{0:.0f}'.format(
-                  Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
-                  + ' seconds.')
+            print('Executing current waypoint: ' +
+                  str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses)))
+            now = navigator.get_clock().now()
 
             # Some navigation timeout to demo cancellation
-            if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
+            if now - nav_start > Duration(seconds=600.0):
                 navigator.cancelNav()
 
-            # # Some navigation request change to demo preemption
-            # if Duration.from_msg(feedback.navigation_time) > Duration(seconds=35.0):
+            # # Some follow waypoints request change to demo preemption
+            # if now - nav_start > Duration(seconds=35.0):
             #     goal_pose4 = PoseStamped()
             #     goal_pose4.header.frame_id = 'map'
-            #     goal_pose4.header.stamp = navigator.get_clock().now().to_msg()
+            #     goal_pose4.header.stamp = now.to_msg()
             #     goal_pose4.pose.position.x = -5.0
             #     goal_pose4.pose.position.y = -4.75
             #     goal_pose4.pose.orientation.w = 0.707
             #     goal_pose4.pose.orientation.z = 0.707
-            #     navigator.goThroughPoses([goal_pose4])
+            #     goal_poses = [goal_pose4]
+            #     nav_start = now
+            #     navigator.followWaypoints(goal_poses)
 
     # Do something depending on the return code
     result = navigator.getResult()
