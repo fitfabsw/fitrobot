@@ -19,10 +19,8 @@ class WaypointFollowerService(Node):
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info(f'服務開始')
 
-        points = request.point_list
-        for point in points:
-            self.get_logger().info(f'{point}')
-        wpf.main()
+        point_list = request.point_list
+        wpf.main(point_list)
         # response.map_list = self.list_files_in_folder(MAP_FOLDER)
         
         self.get_logger().info(f'服務結束')

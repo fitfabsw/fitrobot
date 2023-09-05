@@ -20,13 +20,14 @@ from rclpy.duration import Duration
 import rclpy
 
 from script.robot_navigator import BasicNavigator, NavigationResult
+from fitrobot_interfaces.msg import Point
 
 '''
 Basic navigation demo to go to poses.
 '''
 
 
-def main():
+def main(point_list:[Point]):
     # rclpy.init()
 
     navigator = BasicNavigator()
@@ -49,6 +50,17 @@ def main():
     # Wait for navigation to fully activate, since autostarting nav2
     navigator.waitUntilNav2Active()
 
+    goal_poses = []
+    for point in point_list:
+        print(point.x, point.y)
+        goal_pose = PoseStamped()
+        goal_pose.header.frame_id = 'map'
+        goal_pose.header.stamp = navigator.get_clock().now().to_msg()
+        goal_pose.pose.position.x = point.x
+        goal_pose.pose.position.y = point.y
+        goal_pose.pose.orientation.w = 0.707
+        goal_pose.pose.orientation.z = 0.707
+        goal_poses.append(goal_pose)
     # If desired, you can change or load the map as well
     # navigator.changeMap('/path/to/map.yaml')
 
@@ -57,42 +69,6 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    # set our demo's goal poses to follow
-    goal_poses = []
-    goal_pose1 = PoseStamped()
-    goal_pose1.header.frame_id = 'map'
-    goal_pose1.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose1.pose.position.x = 3.0
-    goal_pose1.pose.position.y = 4.5
-    goal_pose1.pose.orientation.w = 0.707
-    goal_pose1.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose1)
-
-    # additional goals can be appended
-    goal_pose2 = PoseStamped()
-    goal_pose2.header.frame_id = 'map'
-    goal_pose2.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose2.pose.position.x = 3.0
-    goal_pose2.pose.position.y = 0.5
-    goal_pose2.pose.orientation.w = 0.707
-    goal_pose2.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose2)
-    goal_pose3 = PoseStamped()
-    goal_pose3.header.frame_id = 'map'
-    goal_pose3.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose3.pose.position.x = 5.0
-    goal_pose3.pose.position.y = 0.5
-    goal_pose3.pose.orientation.w = 0.707
-    goal_pose3.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose3)
-    goal_pose4 = PoseStamped()
-    goal_pose4.header.frame_id = 'map'
-    goal_pose4.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose4.pose.position.x = 5.0
-    goal_pose4.pose.position.y = 4.5
-    goal_pose4.pose.orientation.w = 0.707
-    goal_pose4.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose4)
     # sanity check a valid path exists
     # path = navigator.getPath(initial_pose, goal_pose1)
 
