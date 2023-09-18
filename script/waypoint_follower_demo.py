@@ -14,115 +14,137 @@
 # limitations under the License.
 
 import time
+import rclpy
+import queue
 
 from geometry_msgs.msg import PoseStamped
 from rclpy.duration import Duration
-import rclpy
-
 from script.robot_navigator import BasicNavigator, NavigationResult
 from fitrobot_interfaces.msg import Point
+from threading import Thread
+
 
 '''
 Basic navigation demo to go to poses.
 '''
 
 
-def main(point_list:[Point]):
-    # rclpy.init()
+class WaypointManager:
+    def __init__(self):
+        self.pose_queue = queue.Queue()
+        self.start_pose = None
+        self.end_pose = None
 
-    navigator = BasicNavigator()
+        self.navigator = BasicNavigator()
 
-    # Set our demo's initial pose
-    initial_pose = PoseStamped()
-    initial_pose.header.frame_id = 'map'
-    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x = 1.5
-    initial_pose.pose.position.y = 4.5
-    initial_pose.pose.orientation.z = 0.0
-    initial_pose.pose.orientation.w = 1.0
-    navigator.setInitialPose(initial_pose)
+        # Set our demo's initial pose
+        initial_pose = self.make_pose(0.3,0.0)
+        self.navigator.setInitialPose(initial_pose)
+        self.set_end_pose(initial_pose)
+        self.set_start_pose(self.make_pose(-2.0, 0.0))
 
-    # Activate navigation, if not autostarted. This should be called after setInitialPose()
-    # or this will initialize at the origin of the map and update the costmap with bogus readings.
-    # If autostart, you should `waitUntilNav2Active()` instead.
-    # navigator.lifecycleStartup()
+        # Wait for navigation to fully activate, since autostarting nav2
+        self.navigator.waitUntilNav2Active()
+        # self.consumer = Thread(target=self.consume_points)
+        # self.consumer.start()
 
-    # Wait for navigation to fully activate, since autostarting nav2
-    navigator.waitUntilNav2Active()
+    def set_start_pose(self, p:PoseStamped):
+        # Set docking station (where the robot stays when there is no active task)
+        self.start_pose = p
+    
+    def set_end_pose(self, p:PoseStamped):
+        # Set the target position (where the robot send items to)
+        self.end_pose = p
+    
+    def make_pose(self, x:float = 0.0, y:float = 0.0)->PoseStamped:
+        pose = PoseStamped()
+        pose.header.frame_id = 'map'
+        pose.header.stamp = self.navigator.get_clock().now().to_msg()
+        pose.pose.position.x = x
+        pose.pose.position.y = y
+        pose.pose.orientation.z = 0.0
+        pose.pose.orientation.w = 1.0
 
-    goal_poses = []
-    for point in point_list:
-        print(point.x, point.y)
-        goal_pose = PoseStamped()
-        goal_pose.header.frame_id = 'map'
-        goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-        goal_pose.pose.position.x = point.x
-        goal_pose.pose.position.y = point.y
-        goal_pose.pose.orientation.w = 0.707
-        goal_pose.pose.orientation.z = 0.707
-        goal_poses.append(goal_pose)
-    # If desired, you can change or load the map as well
-    # navigator.changeMap('/path/to/map.yaml')
+        return pose
+    
+    # def consume_points(self):
+    #     while True:
+    #         if self.navigator.isNavComplete() and self.pose_queue.not_empty:
+    #             print("完成")
+    #             try:
+    #                 pose = self.pose_queue.get()
+    #                 print(f"消耗 {pose}")
+    #                 self.navigator.followWaypoints([pose])
+    #                 i=0
+    #                 while not self.navigator.isNavComplete():
+    #                     print(f"未完成{i}")
+    #                     i = i + 1
+    #             except Exception:
+    #                 continue
+    #         time.sleep(1)
 
-    # You may use the navigator to clear or obtain costmaps
-    # navigator.clearAllCostmaps()  # also have clearLocalCostmap() and clearGlobalCostmap()
-    # global_costmap = navigator.getGlobalCostmap()
-    # local_costmap = navigator.getLocalCostmap()
 
-    # sanity check a valid path exists
-    # path = navigator.getPath(initial_pose, goal_pose1)
 
-    nav_start = navigator.get_clock().now()
-    navigator.followWaypoints(goal_poses)
+    def add_points(self, point_list:[Point]):
+        
+        goal_poses = []
+        for point in point_list:
+            print(point.x, point.y)
+            goal_pose = self.make_pose(point.x, point.y)
+            goal_poses.append(goal_pose)
+            goal_poses.append(self.end_pose)
+            goal_poses.append(self.start_pose)
+            self.pose_queue.put(goal_pose)
 
-    i = 0
-    while not navigator.isNavComplete():
-        ################################################
-        #
-        # Implement some code here for your application!
-        #
-        ################################################
+        # nav_start = self.navigator.get_clock().now()
 
-        # Do something with the feedback
-        i = i + 1
-        feedback = navigator.getFeedback()
-        if feedback and i % 5 == 0:
-            print('Executing current waypoint: ' +
-                  str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses)))
-            now = navigator.get_clock().now()
+        self.navigator.followWaypoints(goal_poses)
+        poped_pose = self.pose_queue.get()
+        goal_x = poped_pose.pose.position.x
+        goal_y = poped_pose.pose.position.y
+        print(f"開始執行站點 (x:{goal_x}, y:{goal_y}) 運送任務")
 
-            # Some navigation timeout to demo cancellation
-            if now - nav_start > Duration(seconds=600.0):
-                navigator.cancelNav()
+        i = 0
+        while not self.navigator.isNavComplete():
+        #     ################################################
+        #     #
+        #     # Implement some code here for your application!
+        #     #
+        #     ################################################
 
-            # # Some follow waypoints request change to demo preemption
-            # if now - nav_start > Duration(seconds=35.0):
-            #     goal_pose4 = PoseStamped()
-            #     goal_pose4.header.frame_id = 'map'
-            #     goal_pose4.header.stamp = now.to_msg()
-            #     goal_pose4.pose.position.x = -5.0
-            #     goal_pose4.pose.position.y = -4.75
-            #     goal_pose4.pose.orientation.w = 0.707
-            #     goal_pose4.pose.orientation.z = 0.707
-            #     goal_poses = [goal_pose4]
-            #     nav_start = now
-            #     navigator.followWaypoints(goal_poses)
+        #     # Do something with the feedback
+            i = i + 1
+            feedback = self.navigator.getFeedback()
+            if feedback and i % 10 == 0:
+                if feedback.current_waypoint == 0:
+                    print(f"前往站點 (x:{goal_x}, y:{goal_y})")
+                elif feedback.current_waypoint == 1:
+                    print(f"運送至FA Room")
+                elif feedback.current_waypoint == 2:
+                    print(f"返回充電座")
+                # now = self.navigator.get_clock().now()
 
-    # Do something depending on the return code
-    result = navigator.getResult()
-    if result == NavigationResult.SUCCEEDED:
-        print('Goal succeeded!')
-    elif result == NavigationResult.CANCELED:
-        print('Goal was canceled!')
-    elif result == NavigationResult.FAILED:
-        print('Goal failed!')
-    else:
-        print('Goal has an invalid return status!')
+        #         # Some navigation timeout to demo cancellation
+        #         if now - nav_start > Duration(seconds=600.0):
+        #             self.navigator.cancelNav()
 
-    navigator.lifecycleShutdown()
+        # # Do something depending on the return code
+        result = self.navigator.getResult()
+        if result == NavigationResult.SUCCEEDED:
+            print('運送任務完成!')
+        elif result == NavigationResult.CANCELED:
+            print('運送任務取消!')
+        elif result == NavigationResult.FAILED:
+            print('運送任務失敗!')
+        else:
+            print('運送任務回傳狀態不合法!')
 
-    exit(0)
+        # navigator.lifecycleShutdown()
 
+        return
+
+    # def __del__(self):
+    #     self.consumer.join()
 
 if __name__ == '__main__':
-    main()
+    pass

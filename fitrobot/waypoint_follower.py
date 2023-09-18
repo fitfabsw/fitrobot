@@ -1,12 +1,10 @@
 import os
 from pathlib import Path
-from fitrobot_interfaces.srv import ListMap
-from fitrobot_interfaces.msg import MapListItem
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import PoseArray
 from fitrobot_interfaces.srv import WaypointFollower
-import script.waypoint_follower_demo as wpf
+from script.waypoint_follower_demo import WaypointManager
 
 
 class WaypointFollowerService(Node):
@@ -15,13 +13,13 @@ class WaypointFollowerService(Node):
         super().__init__('waypoint_follower_service')
         self.get_logger().info(f'服務初始化')
         self.srv = self.create_service(WaypointFollower, 'waypoint_follower', self.waypoint_follower_callback)
+        self.wpMgr = WaypointManager()
 
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info(f'服務開始')
 
         point_list = request.point_list
-        wpf.main(point_list)
-        # response.map_list = self.list_files_in_folder(MAP_FOLDER)
+        self.wpMgr.add_points(point_list)
         
         self.get_logger().info(f'服務結束')
 

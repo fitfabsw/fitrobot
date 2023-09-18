@@ -1,3 +1,23 @@
+小烏龜
+ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py x_pose:=1.5 y_pose:=4.6
+ros2 launch nav2_costmap_filters_demo costmap_filter_info.launch.py params_file:=src/navigation2_tutorials/nav2_costmap_filters_demo/params/keepout_params.yaml mask:=$HOME/maps/keepout_mask.yaml
+ros2 launch nav2_bringup bringup_launch.py map:="$HOME/maps/turtlebot_house.yaml"
+ros2 launch nav2_bringup rviz_launch.py
+ros2 run fitrobot waypoint_follower
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':1.5}, {'x':1.5, 'y':1.5}]}"
+
+
+zbot lino模擬，記載在以下連結
+https://github.com/zealzel/ros-develop/blob/master/setup_vm/simulations_zbot_lino/snippets
+
+ros2 launch linorobot2_gazebo gazebo.launch.py \
+    world:=$(ros2 pkg prefix turtlebot3_gazebo)/share/turtlebot3_gazebo/worlds/turtlebot3_world.world x:=0.3
+ros2 launch linorobot2_navigation navigation.launch.py \
+    map:=/opt/ros/humble/share/turtlebot3_navigation2/map/map.yaml
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':1.7}]}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':-1.7}]}"
+
+
 撰寫Service
 1. 開啟基本服務如articubot bringup、rosbridge、custom pose等
 2. 接收參數決定要開啟slam的launch file或navigation的launch file
