@@ -19,6 +19,6 @@ def generate_launch_description():
                     "bringup_launch.py",
                 ),
             ),
-            launch_arguments = {"map": map_lc, "params_file": "/home/pi/zbot_ws/src/articubot_one/config/nav2_params_20230717.yaml"}.items()
+            launch_arguments = {"map": map_lc, "params_file": "/home/pi/zbotartic_ws/src/articubot_one/config/nav2_params.yaml"}.items()
         ),
     ])
