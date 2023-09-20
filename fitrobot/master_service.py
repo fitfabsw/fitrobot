@@ -15,6 +15,7 @@ class MasterService(Node):
         self.process_list = []
         Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
         Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
+        Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
 
     def master_callback(self, request, response):
         request_action = request.request_action
