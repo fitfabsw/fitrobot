@@ -1,14 +1,15 @@
 [Unit]
 Description=This is the articubot bringup service
-# StartLimitIntervalSec=360
-# StartLimitBurst=3
+StartLimitIntervalSec=160s
+StartLimitBurst=3
+TimeoutStartSec=30s
 
 [Service]
 User=pi
-WorkingDirectory=/home/pi/ros2_ws
-ExecStart=/bin/bash -c "source /opt/ros/galactic/setup.bash && source /home/pi/ros2_ws/install/setup.bash && /opt/ros/galactic/bin/ros2 launch articubot_one launch_robot.launch.py"
-# Restart=on-failure
-# RestartSec=120s
+WorkingDirectory=/home/pi/zbotartic_ws
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch articubot_one launch_robot.launch.py"
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target
