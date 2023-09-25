@@ -38,10 +38,9 @@ class WaypointManager:
         self.navigator = BasicNavigator()
 
         # Set our demo's initial pose
-        initial_pose = self.make_pose(0.0,0.0)
-        self.navigator.setInitialPose(initial_pose)
-        self.set_end_pose(initial_pose)
-        self.set_start_pose(self.make_pose(-0.5, -0.5))
+        # self.navigator.setInitialPose(initial_pose)
+        self.set_end_pose(self.make_pose(-0.5,-0.5))
+        self.set_start_pose(self.make_pose(0.0,0.0))
 
         # Wait for navigation to fully activate, since autostarting nav2
         self.navigator.waitUntilNav2Active()
