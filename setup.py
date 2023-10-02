@@ -13,6 +13,7 @@ setup(
         (f"share/{package_name}/launch", glob("launch/*.launch.py")),
         (f"share/{package_name}/common", glob("common/*.py")),
         (f"share/{package_name}/script", glob("script/*.py")),
+        (f"share/{package_name}/data", glob("data/*.json")),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,6 +31,7 @@ setup(
             'save_map_service = fitrobot.save_map_service:main',
             'list_map_service = fitrobot.list_map_service:main',
             'waypoint_follower = fitrobot.waypoint_follower:main',
+            'list_station_service = fitrobot.list_station_service:main',
         ],
     },
 )

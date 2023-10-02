@@ -1,0 +1,54 @@
+{
+    "world.yaml":{
+        "path":"~/fitrobot_map",
+        "station_list":[
+            {
+                "type":"start",
+                "name":"charging station",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"end",
+                "name":"FA Room",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"station",
+                "name":"station1",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"station",
+                "name":"station2",
+                "x":0.0,
+                "y":0.0
+            }
+        ]
+    },
+    "house.yaml":{
+        "path":"~/fitrobot_map",
+        "station_list":[
+            {
+                "type":"start",
+                "name":"charging station",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"end",
+                "name":"FA Room",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"station",
+                "name":"station3",
+                "x":0.0,
+                "y":0.0
+            },{
+                "type":"station",
+                "name":"station4",
+                "x":0.0,
+                "y":0.0
+            }
+        ]
+    }
+}

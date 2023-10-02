@@ -5,6 +5,7 @@ import psutil
 from subprocess import Popen, PIPE
 from fitrobot_interfaces.srv import Master
 from rclpy.node import Node
+from rclpy.parameter import Parameter
 
 
 class MasterService(Node):
@@ -12,7 +13,9 @@ class MasterService(Node):
     def __init__(self):
         super().__init__('master_service')
         self.srv = self.create_service(Master, 'master', self.master_callback)
+        self.declare_parameter("active_nav_map", "world")
         self.process_list = []
+        
         Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
         Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
         Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
@@ -39,6 +42,8 @@ class MasterService(Node):
     def run_navigation(self, map_name):
         self.get_logger().debug("\n啟動導航服務")
         self.clean_up()
+        map_name_param = Parameter('active_nav_map', Parameter.Type.STRING, map_name)
+        self.set_parameters([map_name_param])
         map_path = f"map:=/home/pi/fitrobot_map/{map_name}"
         p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
