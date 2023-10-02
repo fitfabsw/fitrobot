@@ -1,3 +1,13 @@
+手動測試站點列表服務
+ros2 launch articubot_one launch_robot.launch.py
+ros2 launch fitrobot bringup.launch.py
+ros2 run fitrobot master_service
+ros2 run fitrobot list_station_service
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'office3_res0.02_0523.yaml' }"
+ros2 service call /list_station fitrobot_interfaces/srv/ListStation
+
+====================================================================================
+
 小烏龜
 ros2 launch turtlebot3_gazebo turtlebot3_house.launch.py x_pose:=1.5 y_pose:=4.6
 ros2 launch nav2_costmap_filters_demo costmap_filter_info.launch.py params_file:=src/navigation2_tutorials/nav2_costmap_filters_demo/params/keepout_params.yaml mask:=$HOME/maps/keepout_mask.yaml
