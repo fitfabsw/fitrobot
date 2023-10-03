@@ -25,28 +25,28 @@
             }
         ]
     },
-    "world.yaml":{
+    "office3_copy.yaml":{
         "path":"~/fitrobot_map",
         "station_list":[
             {
                 "type":"start",
-                "name":"charging station",
+                "name":"充電站",
                 "x":0.0,
                 "y":0.0
             },{
                 "type":"end",
-                "name":"FA Room",
-                "x":0.0,
+                "name":"錯誤分析室",
+                "x":2.5,
                 "y":0.0
             },{
                 "type":"station",
-                "name":"station1",
-                "x":0.0,
+                "name":"站點1",
+                "x":0.5,
                 "y":0.0
             },{
                 "type":"station",
-                "name":"station2",
-                "x":0.0,
+                "name":"站點2",
+                "x":1.5,
                 "y":0.0
             }
         ]
