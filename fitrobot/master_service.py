@@ -13,7 +13,7 @@ class MasterService(Node):
     def __init__(self):
         super().__init__('master_service')
         self.srv = self.create_service(Master, 'master', self.master_callback)
-        self.declare_parameter("active_nav_map", "world")
+        self.declare_parameter("active_nav_map", "office3_res0.02_0523.yaml")
         self.process_list = []
         
         # Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
