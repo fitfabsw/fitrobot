@@ -16,9 +16,9 @@ class MasterService(Node):
         self.declare_parameter("active_nav_map", "world")
         self.process_list = []
         
-        Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
-        Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
-        Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
+        # Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
+        # Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
+        # Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
 
     def master_callback(self, request, response):
         request_action = request.request_action
@@ -66,14 +66,14 @@ class MasterService(Node):
 
         parent.kill()
 
-def signal_handler(signum, frame):
-    print('signal_handler: caught signal ' + str(signum))
-    if signum == signal.SIGINT.value:
-        print('SIGINT')
-        sys.exit(1)
+# def signal_handler(signum, frame):
+#     print('signal_handler: caught signal ' + str(signum))
+#     if signum == signal.SIGINT.value:
+#         print('SIGINT')
+#         sys.exit(1)
 
 def main():
-    signal.signal(signal.SIGINT, signal_handler)
+    # signal.signal(signal.SIGINT, signal_handler)
     rclpy.init()
     master_service = MasterService()
     rclpy.spin(master_service)

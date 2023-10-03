@@ -18,16 +18,36 @@ def generate_launch_description():
                 )
             )
         ),
-        Node(
-            package='fitrobot',
-            executable='server_node',
-        ),
-        Node(
-            package='fitrobot',
-            executable='bridge_node',
-        ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='server_node',
+        # ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='bridge_node',
+        # ),
         Node(
             package='fitrobot',
             executable='tf_converter_node',
+        ),
+        Node(
+            package='fitrobot',
+            executable='master_service',
+        ),
+        Node(
+            package='fitrobot',
+            executable='save_map_service',
+        ),
+        Node(
+            package='fitrobot',
+            executable='list_map_service',
+        ),
+        Node(
+            package='fitrobot',
+            executable='waypoint_follower',
+        ),
+        Node(
+            package='fitrobot',
+            executable='list_station_service',
         ),
     ])
