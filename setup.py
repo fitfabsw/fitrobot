@@ -15,6 +15,7 @@ setup(
         (f"share/{package_name}/script", glob("script/*.py")),
         (f"share/{package_name}/data", glob("data/*.json")),
         (f"share/{package_name}/maps", glob("maps/*")),
+        (f"share/{package_name}/masks", glob("masks/*")),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
