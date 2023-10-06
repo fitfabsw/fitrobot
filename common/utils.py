@@ -1,4 +1,11 @@
 import logging
+import os
+import json
+from pathlib import Path
+from inspect import getsourcefile
+from os.path import abspath
+from subprocess import check_output
+
 
 def get_logger(logger_name):
     # create logger
@@ -18,3 +25,28 @@ def get_logger(logger_name):
     # add ch to logger
     logger.addHandler(ch)
     return logger
+
+def get_station_list():
+    map_name = check_output(["ros2", "param", "get", "/master_service", "active_nav_map"]).decode("utf-8")
+    map_name = map_name[17:].strip()
+
+    # call_get_parameters()
+    station_list_file_path = Path(os.path.dirname(abspath(getsourcefile(lambda:0)))).parent.joinpath("data","station_list.json")
+
+    # current_script_path = Path(__file__).resolve().parent
+    # station_list_file_path = current_script_path / "data" / "station_list.json"
+
+    station_list = []
+    with open(station_list_file_path, 'r') as json_file:
+        complete_station_list_json = json.loads(json_file.read())
+        station_list_json = complete_station_list_json[map_name]["station_list"]
+        
+    return station_list_json
+
+def get_start_and_end_stations():
+    station_list_json = get_station_list()
+    
+    start = list(filter(lambda x:x["type"]=="start", station_list_json))[0]
+    end = list(filter(lambda x:x["type"]=="end", station_list_json))[0]
+    return start, end
+

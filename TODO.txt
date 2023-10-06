@@ -20,10 +20,8 @@ ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{
 zbot lino模擬，記載在以下連結
 https://github.com/zealzel/ros-develop/blob/master/setup_vm/simulations_zbot_lino/snippets
 
-ros2 launch linorobot2_gazebo gazebo.launch.py \
-    world:=$(ros2 pkg prefix turtlebot3_gazebo)/share/turtlebot3_gazebo/worlds/turtlebot3_world.world x:=0.3
-ros2 launch linorobot2_navigation navigation.launch.py \
-    map:=/opt/ros/humble/share/turtlebot3_navigation2/map/map.yaml
+ros2 launch linorobot2_gazebo gazebo.launch.py world:=/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world x:=0.3
+ros2 launch linorobot2_navigation navigation.launch.py rviz:=true sim:=true
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':1.7}]}"
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':-1.7}]}"
 

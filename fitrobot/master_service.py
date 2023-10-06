@@ -44,7 +44,8 @@ class MasterService(Node):
         self.clean_up()
         map_name_param = Parameter('active_nav_map', Parameter.Type.STRING, map_name)
         self.set_parameters([map_name_param])
-        map_path = f"map:=/home/pi/fitrobot_map/{map_name}"
+        # map_path = f"map:=/home/pi/fitrobot_map/{map_name}"
+        map_path = f"map:=/home/parallels/fitrobot_map/{map_name}"
         p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
 

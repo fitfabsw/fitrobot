@@ -22,6 +22,7 @@ from rclpy.duration import Duration
 from script.robot_navigator import BasicNavigator, NavigationResult
 from fitrobot_interfaces.msg import Point
 from threading import Thread
+from common.utils import get_start_and_end_stations
 
 
 '''
@@ -39,9 +40,11 @@ class WaypointManager:
 
         # Set our demo's initial pose
         # self.navigator.setInitialPose(initial_pose)
-        self.set_end_pose(self.make_pose(3.0,3.0))
-        self.set_start_pose(self.make_pose(0.0,0.0))
 
+        start_station, end_station = get_start_and_end_stations()
+        self.set_start_pose(self.make_pose(start_station["x"], start_station["y"]))
+        self.set_end_pose(self.make_pose(end_station["x"], end_station["y"]))
+        
         # Wait for navigation to fully activate, since autostarting nav2
         self.navigator.waitUntilNav2Active()
         # self.consumer = Thread(target=self.consume_points)

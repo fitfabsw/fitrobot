@@ -6,22 +6,30 @@
                 "type":"start",
                 "name":"charging station",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"end",
                 "name":"FA Room",
                 "x":3.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"station1",
                 "x":1.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"station2",
                 "x":2.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             }
         ]
     },
@@ -32,48 +40,98 @@
                 "type":"start",
                 "name":"充電站",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"end",
                 "name":"錯誤分析室",
                 "x":3.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"站點1",
                 "x":0.5,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"站點2",
                 "x":1.5,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             }
         ]
     },
-    "house.yaml":{
+    "turtlebot_world.yaml":{
         "path":"~/fitrobot_map",
         "station_list":[
             {
                 "type":"start",
                 "name":"charging station",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"end",
                 "name":"FA Room",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"station3",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             },{
                 "type":"station",
                 "name":"station4",
                 "x":0.0,
-                "y":0.0
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
+            }
+        ]
+    },
+    "turtlebot_house.yaml":{
+        "path":"~/fitrobot_map",
+        "station_list":[
+            {
+                "type":"start",
+                "name":"charging station",
+                "x":0.0,
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
+            },{
+                "type":"end",
+                "name":"FA Room",
+                "x":0.0,
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
+            },{
+                "type":"station",
+                "name":"station3",
+                "x":0.0,
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
+            },{
+                "type":"station",
+                "name":"station4",
+                "x":0.0,
+                "y":0.0,
+                "z":0.0,
+                "w":1.0
             }
         ]
     }

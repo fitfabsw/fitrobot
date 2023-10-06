@@ -1,13 +1,9 @@
-import os
-import json
-from inspect import getsourcefile
-from os.path import abspath
-from subprocess import check_output
-from pathlib import Path
 from fitrobot_interfaces.srv import ListStation
 from fitrobot_interfaces.msg import Station
 import rclpy
 from rclpy.node import Node
+from ros2param.api import call_get_parameters
+from common.utils import get_station_list
 
 
 class ListStationService(Node):
@@ -17,14 +13,9 @@ class ListStationService(Node):
         self.srv = self.create_service(ListStation, 'list_station', self.list_station_callback)
 
     def list_station_callback(self, request, response):
-        map_name = check_output(["ros2", "param", "get", "/master_service", "active_nav_map"]).decode("utf-8")
-        map_name = map_name[17:].strip()
-        station_list_file_path = Path(os.path.dirname(abspath(getsourcefile(lambda:0)))).parent.joinpath("data","station_list.json")
         station_list = []
-        with open(station_list_file_path, 'r') as json_file:
-            complete_station_list_json = json.loads(json_file.read())
-            station_list_json = complete_station_list_json[map_name]
-        for station_json in station_list_json['station_list']:
+        station_list_json = get_station_list()
+        for station_json in station_list_json:
             print(station_json)
             station = Station()
             station.type = station_json["type"]
