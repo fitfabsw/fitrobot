@@ -34,6 +34,7 @@ setup(
             'list_map_service = fitrobot.list_map_service:main',
             'waypoint_follower = fitrobot.waypoint_follower:main',
             'list_station_service = fitrobot.list_station_service:main',
+            'nav2_params_loader = fitrobot.nav2_params_loader:main',
         ],
     },
 )
