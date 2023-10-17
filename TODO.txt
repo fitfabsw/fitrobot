@@ -1,9 +1,16 @@
+waypoint_manager.py添加field存放current station
+
+將station_list改成單一站點
+
+在waypoint_follower.py將current station以每秒一次的頻率publish出來
+====================================================================================
+
 手動測試站點列表服務
 ros2 launch articubot_one launch_robot.launch.py
 ros2 launch fitrobot bringup.launch.py
 ros2 run fitrobot master_service
 ros2 run fitrobot list_station_service
-ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'office3_res0.02_0523.yaml' }"
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'turtlebot_world.yaml' }"
 ros2 service call /list_station fitrobot_interfaces/srv/ListStation
 
 ====================================================================================
@@ -14,7 +21,7 @@ ros2 launch nav2_costmap_filters_demo costmap_filter_info.launch.py params_file:
 ros2 launch nav2_bringup bringup_launch.py map:="$HOME/maps/turtlebot_house.yaml"
 ros2 launch nav2_bringup rviz_launch.py
 ros2 run fitrobot waypoint_follower
-ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':1.5}, {'x':1.5, 'y':1.5}]}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station_list':[{'type': 'station', 'name':'站點1', 'x':0.5, 'y':1.5, 'z':0.0, 'w':1.0}, {'type': 'station', 'name':'站點2', 'x':1.5, 'y':1.5, 'z':0.0, 'w':1.0}]}"
 
 
 zbot lino模擬，記載在以下連結
@@ -22,8 +29,8 @@ https://github.com/zealzel/ros-develop/blob/master/setup_vm/simulations_zbot_lin
 
 ros2 launch linorobot2_gazebo gazebo.launch.py world:=/opt/ros/humble/share/turtlebot3_gazebo/worlds/turtlebot3_world.world x:=0.3
 ros2 launch linorobot2_navigation navigation.launch.py rviz:=true sim:=true
-ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':1.7}]}"
-ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'point_list':[{'x':0.5, 'y':-1.7}]}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station_list':[{'type': 'station', 'name':'站點1', 'x':0.5, 'y':1.7, 'z':0.0, 'w':1.0}]}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station_list':[{'type': 'station', 'name':'站點1', 'x':0.5, 'y':-1.7, 'z':0.0, 'w':1.0}]}"
 
 
 撰寫Service

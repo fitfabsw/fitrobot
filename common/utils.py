@@ -5,6 +5,7 @@ from pathlib import Path
 from inspect import getsourcefile
 from os.path import abspath
 from subprocess import check_output
+from fitrobot_interfaces.msg import Station
 
 
 def get_logger(logger_name):
@@ -43,10 +44,12 @@ def get_station_list():
         
     return station_list_json
 
-def get_start_and_end_stations():
+def get_start_and_end_stations() -> (Station, Station):
     station_list_json = get_station_list()
     
-    start = list(filter(lambda x:x["type"]=="start", station_list_json))[0]
-    end = list(filter(lambda x:x["type"]=="end", station_list_json))[0]
+    s = list(filter(lambda x:x["type"]=="start", station_list_json))[0]
+    e = list(filter(lambda x:x["type"]=="end", station_list_json))[0]
+    start = Station(type=s["type"], name=s["name"], x=s["x"], y=s["y"], z=s["z"], w=s["w"])
+    end = Station(type=e["type"], name=e["name"], x=e["x"], y=e["y"], z=e["z"], w=e["w"])
     return start, end
 
