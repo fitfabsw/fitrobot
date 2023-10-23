@@ -138,10 +138,10 @@ def main(args=None):
 if __name__ == "__main__":
     """
     Description:
-        without set paramerter one by one using ros2 param load command, 
+        without set paramerter one by one using ros2 param load command,
         this node can load nav2_params.yaml file at once.
     Usage
-        ros2 run nav2_params_loader nav2_params_loader
+        ros2 run fitrobot nav2_params_loader
     Example ros2 cli:
         ros2 topic pub -1 topic std_msgs/msg/String "{data: /path/to/nav2_params.yaml}"
     """
