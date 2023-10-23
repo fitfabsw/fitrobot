@@ -3,9 +3,10 @@ from pathlib import Path
 from tf2_ros import TransformListener, Buffer
 from geometry_msgs.msg import TransformStamped, PoseWithCovarianceStamped
 from fitrobot_interfaces.srv import Master, SaveMap, ListMap, ListStation
-from fitrobot_interfaces.msg import MapListItem
+from fitrobot_interfaces.msg import MapListItem, Station
 import rclpy
 from rclpy.node import Node
+from common.utils import get_station_list
 
 MAP_FOLDER = Path.home().joinpath("fitrobot_map")
 
