@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 from tf2_ros import TransformListener, Buffer
 from geometry_msgs.msg import TransformStamped, PoseWithCovarianceStamped
-from fitrobot_interfaces.srv import SaveMap, ListMap
-from fitrobot_interfaces.msg import MapListItem
+from fitrobot_interfaces.srv import Master, SaveMap, ListMap, MapListItem
 import rclpy
 from rclpy.node import Node
 
