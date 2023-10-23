@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from tf2_ros import TransformListener, Buffer
 from geometry_msgs.msg import TransformStamped, PoseWithCovarianceStamped
-from fitrobot_interfaces.srv import Master, SaveMap, ListMap
+from fitrobot_interfaces.srv import Master, SaveMap, ListMap, ListStation
 from fitrobot_interfaces.msg import MapListItem
 import rclpy
 from rclpy.node import Node
@@ -32,6 +32,8 @@ class MapService(Node):
         )
         # 确保地图文件夹存在
         MAP_FOLDER.mkdir(parents=True, exist_ok=True)
+
+        self.srv = self.create_service(ListStation, 'list_station', self.list_station_callback)
 
     def master_callback(self, request, response):
         request_action = request.request_action
@@ -127,6 +129,20 @@ class MapService(Node):
                 mli.map_name = file_name
                 file_names.append(mli)
         return file_names
+
+    def list_station_callback(self, request, response):
+        station_list = []
+        station_list_json = get_station_list()
+        for station_json in station_list_json:
+            print(station_json)
+            station = Station()
+            station.type = station_json["type"]
+            station.name = station_json["name"]
+            station.x = station_json["x"]
+            station.y = station_json["y"]
+            station_list.append(station)
+        response.station_list = station_list
+        return response
 
 
 def main():

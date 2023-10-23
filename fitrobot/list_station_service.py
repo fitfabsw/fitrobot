@@ -23,10 +23,10 @@ class ListStationService(Node):
             station.x = station_json["x"]
             station.y = station_json["y"]
             station_list.append(station)
-            
+
 
         response.station_list = station_list
-        
+
         return response
 
 
