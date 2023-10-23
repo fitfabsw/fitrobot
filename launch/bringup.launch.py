@@ -36,18 +36,22 @@ def generate_launch_description():
         ),
         Node(
             package='fitrobot',
-            executable='save_map_service',
+            executable='map_service',
         ),
-        Node(
-            package='fitrobot',
-            executable='list_map_service',
-        ),
-        Node(
-            package='fitrobot',
-            executable='waypoint_follower',
-        ),
-        Node(
-            package='fitrobot',
-            executable='list_station_service',
-        ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='save_map_service',
+        # ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='list_map_service',
+        # ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='waypoint_follower',
+        # ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='list_station_service',
+        # ),
     ])
