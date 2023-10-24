@@ -1,0 +1,33 @@
+
+# =============================================================
+# manually launch linorobot2
+#
+# default map: $WORKSPACE/fitrobot/maps/office_res002_0914.yaml
+# =============================================================
+ros2 launch linorobot2_bringup bringup.launch.py
+ros2 launch fitrobot bringup.launch.py
+ros2 launch linorobot2_navigation navigation.launch.py
+or
+ros2 launch linorobot2_navigation navigation_keepout.launch.py
+
+
+
+# =============================================================
+# manually launch artic
+#
+# default map: $WORKSPACE/fitrobot/maps/office_res002_0523.yaml
+# =============================================================
+ros2 launch articubot_one launch_robot.launch.py
+ros2 launch fitrobot bringup.launch.py
+ros2 launch articubot_one navigation.launch.py
+or
+ros2 launch articubot_one navigation_keepout.launch.py
+
+
+
+# =============================================================
+# fitrobot service
+ros2 service call /list_station fitrobot_interfaces/srv/ListStation
+ros2 service call /list_map fitrobot_interfaces/srv/ListMap
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':0.5, 'y':0.0, 'z':0.0, 'w':1.0}}"
+
