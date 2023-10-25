@@ -1,5 +1,5 @@
 {
-  "office3_res0.02_0914.yaml": {
+  "office_res002_0914.yaml": {
     "path": "~/fitrobot_map",
     "station_list": [
       {
@@ -36,7 +36,7 @@
       }
     ]
   },
-  "office3_res0.02_0523.yaml": {
+  "office_res002_0523.yaml": {
     "path": "~/fitrobot_map",
     "station_list": [
       {
