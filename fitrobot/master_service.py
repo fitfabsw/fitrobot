@@ -1,7 +1,9 @@
+import os
 import sys
 import rclpy
 import signal
 import psutil
+from ament_index_python.packages import get_package_share_directory
 from subprocess import Popen, PIPE
 from fitrobot_interfaces.srv import Master
 from rclpy.node import Node
@@ -41,12 +43,12 @@ class MasterService(Node):
 
     def run_navigation(self, map_name):
         self.get_logger().debug("\n啟動導航服務")
+        maploc = os.path.join(get_package_share_directory("fitrobot"), 'maps')
         self.clean_up()
         map_name_param = Parameter('active_nav_map', Parameter.Type.STRING, map_name)
         self.set_parameters([map_name_param])
-        # map_path = f"map:=/home/pi/fitrobot_map/{map_name}"
-        map_path = f"map:=/home/parallels/fitrobot_map/{map_name}"
-        p = Popen(["ros2", "launch", "fitrobot", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+        map_path = f"map:={maploc}/{map_name}"
+        p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
         self.process_list.append(p)
 
     def run_slam(self):
