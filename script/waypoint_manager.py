@@ -24,7 +24,7 @@ from common.utils import get_start_and_end_stations
 
 class WaypointManager:
     def __init__(self):
-        self.current_station = None
+        self.target_station = None
         self.start_station = None
         self.end_station = None
 
@@ -68,9 +68,9 @@ class WaypointManager:
 
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
         self.navigator.followWaypoints(goal_poses)
-        self.current_station = station
+        self.target_station = station
         
-        print(f"開始執行站點 (name:{self.current_station.name}, x:{self.current_station.x}, y:{self.current_station.y}) 運送任務")
+        print(f"開始執行站點 (name:{self.target_station.name}, x:{self.target_station.x}, y:{self.target_station.y}) 運送任務")
 
         i = 0
         while not self.navigator.isNavComplete():
@@ -78,13 +78,13 @@ class WaypointManager:
             feedback = self.navigator.getFeedback()
             if feedback and i % 10 == 0:
                 if feedback.current_waypoint == 0:
-                    self.current_station = station
-                    print(f"前往站點 (name:{self.current_station.name}, x:{self.current_station.x}, y:{self.current_station.y}) 運送任務")
+                    self.target_station = station
+                    print(f"前往站點 (name:{self.target_station.name}, x:{self.target_station.x}, y:{self.target_station.y}) 運送任務")
                 elif feedback.current_waypoint == 1:
-                    self.current_station = self.end_station
+                    self.target_station = self.end_station
                     print(f"運送至FA Room")
                 elif feedback.current_waypoint == 2:
-                    self.current_station = self.start_station
+                    self.target_station = self.start_station
                     print(f"返回充電座")
                 # now = self.navigator.get_clock().now()
 

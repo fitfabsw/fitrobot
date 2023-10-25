@@ -34,3 +34,5 @@ ros2 service call /save_map fitrobot interfaces/srv/SaveMap "{'map_name':MAP_YAM
 ros2 service call /list_map fitrobot_interfaces/srv/ListMap
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':0.5, 'y':0.0, 'z':0.0, 'w':1.0}}"
 
+# fitrobot topic
+ros2 topic echo /target_station

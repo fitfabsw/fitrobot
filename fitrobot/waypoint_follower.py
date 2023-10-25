@@ -13,7 +13,7 @@ class WaypointFollowerService(Node):
         super().__init__('waypoint_follower_service')
         self.get_logger().info(f'服務初始化')
         self.srv = self.create_service(WaypointFollower, 'waypoint_follower', self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        self.pub = self.create_publisher(Station, "current_station", 10, callback_group=MutuallyExclusiveCallbackGroup())
+        self.pub = self.create_publisher(Station, "target_station", 10, callback_group=MutuallyExclusiveCallbackGroup())
         self.timer = self.create_timer(1.0, self.timer_callback)
         self.wpMgr = WaypointManager()
 
@@ -28,8 +28,8 @@ class WaypointFollowerService(Node):
         return response
     
     def timer_callback(self):
-        if self.wpMgr and self.wpMgr.current_station:
-            self.pub.publish(self.wpMgr.current_station)
+        if self.wpMgr and self.wpMgr.target_station:
+            self.pub.publish(self.wpMgr.target_station)
 
 def main():
     rclpy.init()
