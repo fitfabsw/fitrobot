@@ -13,9 +13,9 @@ class MasterService(Node):
     def __init__(self):
         super().__init__('master_service')
         self.srv = self.create_service(Master, 'master', self.master_callback)
-        self.declare_parameter("active_nav_map", "office3_res0.02_0523.yaml")
+        self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
         self.process_list = []
-        
+
         # Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
         # Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
         # Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
@@ -31,14 +31,14 @@ class MasterService(Node):
             pass
 
         return response
-    
+
     def clean_up(self):
         self.get_logger().debug("清理已開啟服務")
         while self.process_list:
             p = self.process_list.pop()
             self.get_logger().debug(f"清理process:{p.pid}")
             self.kill_process_and_children(p.pid)
-            
+
     def run_navigation(self, map_name):
         self.get_logger().debug("\n啟動導航服務")
         self.clean_up()
