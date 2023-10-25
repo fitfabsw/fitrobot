@@ -1,3 +1,5 @@
+Bug: 設完active_nav_map之後，站點沒有更新到
+====================================================================================
 waypoint_manager.py添加field存放current station
 
 將station_list改成單一站點

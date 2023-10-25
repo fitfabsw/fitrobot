@@ -5,8 +5,11 @@
   <version>0.0.1</version>
   <description>This is the package for FIT robot project</description>
   <maintainer email="jason.kj.ke@fit-foxconn.com">ubuntu</maintainer>
-  <license>N/A</license>
-
+  <license>MIT</license>
+  
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
   <exec_depend>fitrobot_interfaces</exec_depend>
@@ -16,6 +19,6 @@
   <test_depend>python3-pytest</test_depend>
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
