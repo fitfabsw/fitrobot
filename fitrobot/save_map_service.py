@@ -3,9 +3,10 @@ from pathlib import Path
 from fitrobot_interfaces.srv import SaveMap
 import rclpy
 from rclpy.node import Node
+from common.utils import get_map_folder
 
 
-MAP_FOLDER = Path.home().joinpath("fitrobot_map")
+MAP_FOLDER = get_map_folder()
 
 class SaveMapService(Node):
 
@@ -19,9 +20,9 @@ class SaveMapService(Node):
         map_path = MAP_FOLDER.joinpath(request.map_name)
         r1 = os.popen(f"ros2 run nav2_map_server map_saver_cli -f {map_path}")
         r1.read()
-        r2 = os.popen(f"convert {map_path}.pgm -resize 100x100\! {map_path}.jpg")
-        r2.read()
-        response.ack = "SUCCESS" if (not r1.close() and not r2.close()) else "FAIL"
+        # r2 = os.popen(f"convert {map_path}.pgm -resize 100x100\! {map_path}.jpg")
+        # r2.read()
+        response.ack = "SUCCESS" if (not r1.close()) else "FAIL"
         self.get_logger().info(f'儲存地圖結果: {response.ack}')
         
         return response

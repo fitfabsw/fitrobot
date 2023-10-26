@@ -4,9 +4,10 @@ from fitrobot_interfaces.srv import ListMap
 from fitrobot_interfaces.msg import MapListItem
 import rclpy
 from rclpy.node import Node
+from common.utils import get_map_folder
 
 
-MAP_FOLDER = Path.home().joinpath("fitrobot_map")
+MAP_FOLDER = get_map_folder()
 
 class ListMapService(Node):
 

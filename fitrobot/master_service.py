@@ -15,12 +15,14 @@ class MasterService(Node):
     def __init__(self):
         super().__init__('master_service')
         self.srv = self.create_service(Master, 'master', self.master_callback)
-        self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
+        robot_type = os.getenv('ROBOT_TYPE', 'lino')
+        if robot_type == 'lino':
+            self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
+        elif robot_type == 'artic':
+            self.declare_parameter("active_nav_map", "office_res002_0523.yaml")
+        
         self.process_list = []
 
-        # Popen(["ros2", "run", "fitrobot", "save_map_service"], stdout=PIPE, stderr=PIPE)
-        # Popen(["ros2", "run", "fitrobot", "list_map_service"], stdout=PIPE, stderr=PIPE)
-        # Popen(["ros2", "run", "fitrobot", "waypoint_follower"], stdout=PIPE, stderr=PIPE)
 
     def master_callback(self, request, response):
         request_action = request.request_action
@@ -48,7 +50,13 @@ class MasterService(Node):
         map_name_param = Parameter('active_nav_map', Parameter.Type.STRING, map_name)
         self.set_parameters([map_name_param])
         map_path = f"map:={maploc}/{map_name}"
-        p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+        
+        robot_type = os.getenv('ROBOT_TYPE', 'lino')
+        if robot_type == 'lino':
+            p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+        elif robot_type == 'artic':
+            p = Popen(["ros2", "launch", "articubot_one", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+
         self.process_list.append(p)
 
     def run_slam(self):
@@ -69,11 +77,6 @@ class MasterService(Node):
 
         parent.kill()
 
-# def signal_handler(signum, frame):
-#     print('signal_handler: caught signal ' + str(signum))
-#     if signum == signal.SIGINT.value:
-#         print('SIGINT')
-#         sys.exit(1)
 
 def main():
     # signal.signal(signal.SIGINT, signal_handler)

@@ -1,8 +1,12 @@
-waypoint_manager.py添加field存放current station
+在master service 使用環境變數判斷大車或小車
+    ROBOT_TYPE=[artic|lino]
+
+====================================================================================
+waypoint_manager.py添加field存放target station
 
 將station_list改成單一站點
 
-在waypoint_follower.py將current station以每秒一次的頻率publish出來
+在waypoint_follower.py將target station以每秒一次的頻率publish出來
 ====================================================================================
 
 手動測試站點列表服務

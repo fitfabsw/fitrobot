@@ -5,6 +5,7 @@ from pathlib import Path
 from inspect import getsourcefile
 from os.path import abspath
 from subprocess import check_output
+from ament_index_python.packages import get_package_share_directory
 from fitrobot_interfaces.msg import Station
 
 
@@ -26,6 +27,14 @@ def get_logger(logger_name):
     # add ch to logger
     logger.addHandler(ch)
     return logger
+
+def get_map_folder():
+    map_folder = os.path.join(get_package_share_directory("fitrobot"), 'maps')
+    return Path(map_folder)
+
+def get_map_path(map_name):
+    map_path = os.path.join(get_package_share_directory("fitrobot"), 'maps', map_name)
+    return Path(map_path)
 
 def get_station_list():
     map_name = check_output(["ros2", "param", "get", "/master_service", "active_nav_map"]).decode("utf-8")
