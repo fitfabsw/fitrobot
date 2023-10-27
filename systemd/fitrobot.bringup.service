@@ -10,7 +10,7 @@ User=pi
 WorkingDirectory=/home/pi/zbotartic_ws
 #ExecStartPre=/bin/sleep 30
 TimeoutStartSec=30
-ExecStart=/bin/bash -c "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp && source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch fitrobot bringup.launch.py"
+ExecStart=/bin/bash -c "export ROBOT_TYPE=artic && export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp && source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch fitrobot bringup.launch.py"
 # Restart=on-failure
 # RestartSec=120s
 
