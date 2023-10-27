@@ -11,19 +11,19 @@ class WaypointFollowerService(Node):
 
     def __init__(self):
         super().__init__('waypoint_follower_service')
-        self.get_logger().info(f'服務初始化')
+        self.get_logger().info(f'waypoint follower服務初始化')
         self.srv = self.create_service(WaypointFollower, 'waypoint_follower', self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
         self.pub = self.create_publisher(Station, "target_station", 10, callback_group=MutuallyExclusiveCallbackGroup())
         self.timer = self.create_timer(1.0, self.timer_callback)
         self.wpMgr = WaypointManager()
 
     def waypoint_follower_callback(self, request, response):
-        self.get_logger().info(f'服務開始')
+        self.get_logger().info(f'waypoint follower服務開始')
 
         station = request.station
         self.wpMgr.add_station(station)
         
-        self.get_logger().info(f'服務結束')
+        self.get_logger().info(f'waypoint follower服務結束')
 
         return response
     
