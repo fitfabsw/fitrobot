@@ -13,17 +13,17 @@ class ListStationService(Node):
         self.srv = self.create_service(ListStation, 'list_station', self.list_station_callback)
 
     def list_station_callback(self, request, response):
+        self.get_logger().info(f'列出站點')
         station_list = []
         station_list_json = get_station_list()
         for station_json in station_list_json:
-            print(station_json)
             station = Station()
             station.type = station_json["type"]
             station.name = station_json["name"]
             station.x = station_json["x"]
             station.y = station_json["y"]
             station_list.append(station)
-            
+        self.get_logger().info(f'站點列表結果：{station_list}')
 
         response.station_list = station_list
         
