@@ -32,6 +32,10 @@ def generate_launch_description():
         ),
         Node(
             package='fitrobot',
+            executable='check_tf_service',
+        ),
+        Node(
+            package='fitrobot',
             executable='master_service',
         ),
         Node(
