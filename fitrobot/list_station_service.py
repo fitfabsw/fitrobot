@@ -22,6 +22,8 @@ class ListStationService(Node):
             station.name = station_json["name"]
             station.x = station_json["x"]
             station.y = station_json["y"]
+            station.z = station_json["z"]
+            station.w = station_json["w"]
             station_list.append(station)
         self.get_logger().info(f'站點列表結果：{station_list}')
 
