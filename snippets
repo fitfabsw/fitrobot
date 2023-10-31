@@ -29,7 +29,7 @@ ros2 launch articubot_one navigation_keepout.launch.py
 # fitrobot service
 ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'slam' , 'request_param':'' }"
 ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'MAP_YAML_FILE' }"
-ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'office_res002_0914' }"
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'office_res002_0914.yaml' }"
 ros2 service call /list_station fitrobot_interfaces/srv/ListStation  # Depends on master service(navigation)
 ros2 service call /save_map fitrobot interfaces/srv/SaveMap "{'map_name':MAP_YAML_FILE}"
 ros2 service call /list_map fitrobot_interfaces/srv/ListMap
