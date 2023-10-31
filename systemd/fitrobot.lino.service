@@ -1,0 +1,16 @@
+[Unit]
+Description=This is the lino bringup service
+StartLimitIntervalSec=160s
+StartLimitBurst=3
+TimeoutStartSec=10s
+
+[Service]
+Environment="RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" "LINOROBOT2_BASE=zbotlinosick2" "LINOROBOT2_LASER_SENSOR=nanoscan3" "CYCLONEDDS_URI=/home/pi/cyclonedds.xml"
+User=pi
+WorkingDirectory=/home/pi/zbotlino_ws
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/pi/zbotlino_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch linorobot2_bringup bringup.launch.py"
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
