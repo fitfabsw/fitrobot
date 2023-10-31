@@ -29,12 +29,13 @@ class WaypointFollowerService(Node):
           history=QoSHistoryPolicy.KEEP_LAST,
           depth=1)
         self.pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
-        # self.sub = self.create_subscription(
-        #     GoalStatusArray,
-        #     "/navigate_to_pose/_action/status",
-        #     self.status_callback,
-        #     10,
-        # )
+        self.sub = self.create_subscription(
+            GoalStatusArray,
+            "/navigate_to_pose/_action/status",
+            self.status_callback,
+            10,
+            callback_group=MutuallyExclusiveCallbackGroup()
+        )
 
         self.navigator = BasicNavigator()
         start_station, end_station = get_start_and_end_stations()
@@ -112,7 +113,7 @@ class WaypointFollowerService(Node):
         else:
             print('運送任務回傳狀態不合法!')
 
-        self.navigator.lifecycleShutdown()
+        # self.navigator.lifecycleShutdown()
 
         return
 
