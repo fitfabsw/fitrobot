@@ -8,7 +8,7 @@ from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
 from fitrobot_interfaces.srv import WaypointFollower
-from fitrobot_interfaces.msg import Station
+from fitrobot_interfaces.msg import Station, RobotStatus
 from script.robot_navigator import BasicNavigator, NavigationResult
 
 
@@ -16,6 +16,7 @@ class WaypointFollowerService(Node):
 
     def __init__(self):
         super().__init__('waypoint_follower_service')
+        self.robot_status = None
         self.target_station = None
         self.start_station = None
         self.end_station = None
@@ -28,7 +29,9 @@ class WaypointFollowerService(Node):
           reliability=QoSReliabilityPolicy.RELIABLE,
           history=QoSHistoryPolicy.KEEP_LAST,
           depth=1)
-        self.pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
+        
+        self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
+        self.station_pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
         self.sub = self.create_subscription(
             GoalStatusArray,
             "/navigate_to_pose/_action/status",
@@ -38,9 +41,7 @@ class WaypointFollowerService(Node):
         )
 
         self.navigator = BasicNavigator()
-        start_station, end_station = get_start_and_end_stations()
-        self.set_start_station(start_station)
-        self.set_end_station(end_station)
+        self.start_station, self.end_station = get_start_and_end_stations()
 
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info(f'waypoint follower服務開始')
@@ -54,15 +55,10 @@ class WaypointFollowerService(Node):
     
     def status_callback(self, msg):
         status = msg.status_list[-1].status
-        print("status: ", status)
-
-    def set_start_station(self, station: Station):
-        # Set docking station (where the robot stays when there is no active task)
-        self.start_station = station
-    
-    def set_end_station(self, station: Station):
-        # Set the target position (where the robot send items to)
-        self.end_station = station
+        if status == 2:
+            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
+        elif status == 4:
+            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
     
     def convert_station_to_pose(self, station: Station) -> PoseStamped:
         pose = PoseStamped()
@@ -100,16 +96,19 @@ class WaypointFollowerService(Node):
                     elif feedback.current_waypoint == 2:
                         self.target_station = self.start_station
                         print(f"返回充電座")
-                    self.pub.publish(self.target_station)
+                    self.station_pub.publish(self.target_station)
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
         if result == NavigationResult.SUCCEEDED:
             print('運送任務完成!')
+            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
         elif result == NavigationResult.CANCELED:
             print('運送任務取消!')
+            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
         elif result == NavigationResult.FAILED:
             print('運送任務失敗!')
+            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
         else:
             print('運送任務回傳狀態不合法!')
 
