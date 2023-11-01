@@ -13,25 +13,6 @@ from fitrobot_interfaces.msg import RobotStatus
 import tf2_py as tf2
 
 
-# class RobotStatus(Enum):
-#     standby = 0
-#     bringup = 1
-#     slam = 2
-#     nav_prepare = 3
-#     nav_standby = 4
-#     #
-#     nav_running = 11
-#     nav_arrived = 12
-#     nav_cancel = 13
-#     nav_failed = 14
-#     #
-#     nav_wf_running = 21
-#     nav_wf_arrived = 22
-#     nav_wf_completed = 23
-#     nav_wf_cancel = 24
-#     nav_wf_failed = 25
-
-
 class TfCheckNode(Node):
     def __init__(self):
         super().__init__("check_robot_status_node")
@@ -103,9 +84,6 @@ class TfCheckNode(Node):
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                 return
 
-            # elif self.robot_status == RobotStatus.BRINGUP:
-            #     pass
-
         except (tf2.LookupException, tf2.ExtrapolationException) as ex:
             self.get_logger().error("Transform lookup failed: {0}".format(str(ex)))
 
@@ -125,14 +103,20 @@ def main(args=None):
 
 if __name__ == "__main__":
     """usage
-    execute service node:
+    # execute node
     ros2 run fitrobot check_robot_status
+    [INFO] [1698830984.888322671] [check_robot_status_node]: launch: standby
+    [INFO] [1698830994.859154921] [check_robot_status_node]: bringup
+    [INFO] [1698831006.859219936] [check_robot_status_node]: nav_prepare
+    [INFO] [1698831013.862822112] [check_robot_status_node]: nav_standby
 
     # subsribe topic
     # ros2 topic echo /robot_status
-
-    # example response:
-    # std_srvs.srv.Trigger_Response(success=False, message='is_localized: False')
-
+    status: 1
+    ---
+    status: 3
+    ---
+    status: 4
+    ---
     """
     main()
