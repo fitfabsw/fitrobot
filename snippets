@@ -39,3 +39,13 @@ ros2 service call /is_localized std_srvs/srv/Trigger
 
 # fitrobot topic
 ros2 topic echo /target_station
+
+
+# simulations for quick testing
+ros2 launch linorobot2_gazebo gazebo.launch.py # default world: turtlebot3_world
+ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
+ros2 run fitrobot master_service
+ros2 run fitrobot waypoint_follower
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
+ros2 topic echo target_station
+ros2 run fitrobot check_robot_status
