@@ -37,6 +37,7 @@ setup(
             'nav2_params_loader = fitrobot.nav2_params_loader:main',
             'check_tf_service = fitrobot.check_tf_service:main',
             'check_robot_status = fitrobot.check_robot_status:main',
+            'external_status_getset = fitrobot.external_status_getset:main',
         ],
     },
 )

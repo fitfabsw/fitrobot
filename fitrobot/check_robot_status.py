@@ -4,18 +4,23 @@ import rclpy
 from rclpy.duration import Duration
 from rclpy.time import Time
 from std_srvs.srv import Trigger
-from std_msgs.msg import Int32
 from rclpy.node import Node
 from tf2_ros import Buffer, TransformListener
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
 from fitrobot_interfaces.msg import RobotStatus
 import tf2_py as tf2
+from rclpy.parameter import Parameter
 
 
-class TfCheckNode(Node):
+class RobotStatusCheckNode(Node):
     def __init__(self):
-        super().__init__("check_robot_status_node")
+        super().__init__(
+            "check_robot_status_node",
+            # allow_undeclared_parameters=True,
+            # automatically_declare_parameters_from_overrides=True,
+        )
+        self.declare_parameter('fitrobot_status', RobotStatus.STANDBY)
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.robot_status = RobotStatus.STANDBY
@@ -53,6 +58,7 @@ class TfCheckNode(Node):
                     self.get_logger().info("bringup")
                     self.robot_status = RobotStatus.BRINGUP
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
                 return
 
             elif self.robot_status == RobotStatus.BRINGUP:
@@ -60,10 +66,12 @@ class TfCheckNode(Node):
                     self.get_logger().info("nav_prepare")
                     self.robot_status = RobotStatus.NAV_PREPARE
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_PREPARE)])
                 elif not self.is_tf_odom_baselink_existed():
                     self.get_logger().info("standby")
                     self.robot_status = RobotStatus.STANDBY
                     self.pub.publish(RobotStatus(status=RobotStatus.STANDBY))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.STANDBY)])
                 return
 
             if self.robot_status == RobotStatus.NAV_PREPARE:
@@ -71,10 +79,12 @@ class TfCheckNode(Node):
                     self.get_logger().info("nav_standby")
                     self.robot_status = RobotStatus.NAV_STANDBY
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_STANDBY))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_STANDBY)])
                 elif not self.check_nav2_running():
                     self.get_logger().info("bringup")
                     self.robot_status = RobotStatus.BRINGUP
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
                 return
 
             elif self.robot_status == RobotStatus.NAV_STANDBY:
@@ -82,6 +92,7 @@ class TfCheckNode(Node):
                     self.get_logger().info("nav_prepare")
                     self.robot_status = RobotStatus.NAV_PREPARE
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_PREPARE)])
                 return
 
         except (tf2.LookupException, tf2.ExtrapolationException) as ex:
@@ -90,7 +101,7 @@ class TfCheckNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    tf2_listener_node = TfCheckNode()
+    tf2_listener_node = RobotStatusCheckNode()
     try:
         rclpy.spin(tf2_listener_node)
     except KeyboardInterrupt:
