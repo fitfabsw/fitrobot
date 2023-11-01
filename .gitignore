@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/ros,ros2,macos,windows,linux,python,c++
-# Edit at https://www.toptal.com/developers/gitignore?templates=ros,ros2,macos,windows,linux,python,c++
+# Created by https://www.toptal.com/developers/gitignore/api/ros,ros2,visualstudiocode,macos,linux,windows,python,c++
+# Edit at https://www.toptal.com/developers/gitignore?templates=ros,ros2,visualstudiocode,macos,linux,windows,python,c++
 
 ### C++ ###
 # Prerequisites
@@ -322,6 +322,25 @@ log/
 COLCON_IGNORE
 AMENT_IGNORE
 
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -348,4 +367,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/ros,ros2,macos,windows,linux,python,c++
+# End of https://www.toptal.com/developers/gitignore/api/ros,ros2,visualstudiocode,macos,linux,windows,python,c++
