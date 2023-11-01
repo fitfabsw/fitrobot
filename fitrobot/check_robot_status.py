@@ -7,26 +7,29 @@ from std_srvs.srv import Trigger
 from std_msgs.msg import Int32
 from rclpy.node import Node
 from tf2_ros import Buffer, TransformListener
+from rclpy.qos import QoSProfile
+from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
+from fitrobot_interfaces.msg import RobotStatus
 import tf2_py as tf2
 
 
-class RobotStatus(Enum):
-    standby = 0
-    bringup = 1
-    slam = 2
-    nav_prepare = 3
-    nav_standby = 4
-    #
-    nav_running = 11
-    nav_arrived = 12
-    nav_cancel = 13
-    nav_failed = 14
-    #
-    nav_wf_running = 21
-    nav_wf_arrived = 22
-    nav_wf_completed = 23
-    nav_wf_cancel = 24
-    nav_wf_failed = 25
+# class RobotStatus(Enum):
+#     standby = 0
+#     bringup = 1
+#     slam = 2
+#     nav_prepare = 3
+#     nav_standby = 4
+#     #
+#     nav_running = 11
+#     nav_arrived = 12
+#     nav_cancel = 13
+#     nav_failed = 14
+#     #
+#     nav_wf_running = 21
+#     nav_wf_arrived = 22
+#     nav_wf_completed = 23
+#     nav_wf_cancel = 24
+#     nav_wf_failed = 25
 
 
 class TfCheckNode(Node):
@@ -34,9 +37,15 @@ class TfCheckNode(Node):
         super().__init__("check_robot_status_node")
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.robot_status = RobotStatus.standby
+        self.robot_status = RobotStatus.STANDBY
+        qos = QoSProfile(
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
         self.timer = self.create_timer(1.0, self.status_check)
-        self.pub = self.create_publisher(Int32, "robot_status", 10)
+        self.pub = self.create_publisher(RobotStatus, "robot_status", qos)
         self.get_logger().info("launch: standby")
 
     def check_tf(self, parent, child, timeout=0.5):
@@ -54,41 +63,47 @@ class TfCheckNode(Node):
 
     def check_nav2_running(self):
         nodenames = self.get_node_names()
-        return True if 'bt_navigator' in nodenames else False
+        return True if "bt_navigator" in nodenames else False
 
     def status_check(self):
         try:
-            if self.robot_status == RobotStatus.standby:
+            if self.robot_status == RobotStatus.STANDBY:
                 if self.is_tf_odom_baselink_existed():
                     self.get_logger().info("bringup")
-                    self.robot_status = RobotStatus.bringup
+                    self.robot_status = RobotStatus.BRINGUP
+                    self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                 return
 
-            elif self.robot_status == RobotStatus.bringup:
+            elif self.robot_status == RobotStatus.BRINGUP:
                 if self.check_nav2_running():
                     self.get_logger().info("nav_prepare")
-                    self.robot_status = RobotStatus.nav_prepare
+                    self.robot_status = RobotStatus.NAV_PREPARE
+                    self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                 elif not self.is_tf_odom_baselink_existed():
                     self.get_logger().info("standby")
-                    self.robot_status = RobotStatus.standby
+                    self.robot_status = RobotStatus.STANDBY
+                    self.pub.publish(RobotStatus(status=RobotStatus.STANDBY))
                 return
 
-            if self.robot_status == RobotStatus.nav_prepare:
+            if self.robot_status == RobotStatus.NAV_PREPARE:
                 if self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_standby")
-                    self.robot_status = RobotStatus.nav_standby
+                    self.robot_status = RobotStatus.NAV_STANDBY
+                    self.pub.publish(RobotStatus(status=RobotStatus.NAV_STANDBY))
                 elif not self.check_nav2_running():
                     self.get_logger().info("bringup")
-                    self.robot_status = RobotStatus.bringup
+                    self.robot_status = RobotStatus.BRINGUP
+                    self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                 return
 
-            elif self.robot_status == RobotStatus.nav_standby:
+            elif self.robot_status == RobotStatus.NAV_STANDBY:
                 if not self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_prepare")
-                    self.robot_status = RobotStatus.nav_prepare
+                    self.robot_status = RobotStatus.NAV_PREPARE
+                    self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                 return
 
-            # elif self.robot_status == RobotStatus.bringup:
+            # elif self.robot_status == RobotStatus.BRINGUP:
             #     pass
 
         except (tf2.LookupException, tf2.ExtrapolationException) as ex:
