@@ -7,7 +7,7 @@ from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolic
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
-from fitrobot_interfaces.srv import WaypointFollower
+from fitrobot_interfaces.srv import WaypointFollower, TargetStation
 from fitrobot_interfaces.msg import Station, RobotStatus
 from script.robot_navigator import BasicNavigator, NavigationResult
 
@@ -22,8 +22,9 @@ class WaypointFollowerService(Node):
         self.end_station = None
 
         self.get_logger().info(f'waypoint follower服務初始化')
-        self.srv = self.create_service(WaypointFollower, 'waypoint_follower', self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        
+        self.waypoint_srv = self.create_service(WaypointFollower, "waypoint_follower", self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
+        self.target_station_srv = self.create_service(TargetStation, "target_station", self.target_station_callback, callback_group=MutuallyExclusiveCallbackGroup())
+
         qos = QoSProfile(
           durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
           reliability=QoSReliabilityPolicy.RELIABLE,
@@ -31,7 +32,6 @@ class WaypointFollowerService(Node):
           depth=1)
         
         self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
-        self.station_pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
         self.sub = self.create_subscription(
             GoalStatusArray,
             "/navigate_to_pose/_action/status",
@@ -51,6 +51,14 @@ class WaypointFollowerService(Node):
         
         self.get_logger().info(f'waypoint follower服務結束')
 
+        return response
+    
+    def target_station_callback(self, request, response):
+        self.get_logger().info(f'target station服務開始')
+
+        response.target_station = self.target_station
+        
+        self.get_logger().info(f'target station服務結束')
         return response
     
     def status_callback(self, msg):
@@ -96,7 +104,6 @@ class WaypointFollowerService(Node):
                     elif feedback.current_waypoint == 2:
                         self.target_station = self.start_station
                         print(f"返回充電座")
-                    self.station_pub.publish(self.target_station)
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
