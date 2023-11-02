@@ -35,7 +35,7 @@ class NavigationResult(Enum):
     UKNOWN = 0
     SUCCEEDED = 1
     CANCELED = 2
-    FAILED = 3 
+    FAILED = 3
 
 
 class BasicNavigator(Node):
@@ -367,7 +367,7 @@ class BasicNavigator(Node):
     def _waitForInitialPose(self):
         while not self.initial_pose_received:
             self.info('Setting initial pose')
-            self._setInitialPose()
+            # self._setInitialPose()
             self.info('Waiting for amcl_pose to be received')
             rclpy.spin_once(self, timeout_sec=1.0)
         return
