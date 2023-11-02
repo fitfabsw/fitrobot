@@ -4,6 +4,8 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
+from rcl_interfaces.msg import ParameterValue, ParameterType, Parameter
+from rcl_interfaces.srv import SetParameters
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
@@ -20,6 +22,11 @@ class WaypointFollowerService(Node):
         self.target_station = None
         self.start_station = None
         self.end_station = None
+
+        service_name = "/check_robot_status_node/set_parameters"
+        self.cli = self.create_client(SetParameters, service_name)
+        while not self.cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info(f"service {service_name} not available, waiting again...")
 
         self.get_logger().info(f'waypoint follower服務初始化')
         self.waypoint_srv = self.create_service(WaypointFollower, "waypoint_follower", self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
@@ -65,8 +72,11 @@ class WaypointFollowerService(Node):
         status = msg.status_list[-1].status
         if status == 2:
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
+            self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
+
         elif status == 4:
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
+            self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
     
     def convert_station_to_pose(self, station: Station) -> PoseStamped:
         pose = PoseStamped()
@@ -110,18 +120,41 @@ class WaypointFollowerService(Node):
         if result == NavigationResult.SUCCEEDED:
             print('運送任務完成!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
+            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         elif result == NavigationResult.CANCELED:
             print('運送任務取消!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
+            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         elif result == NavigationResult.FAILED:
             print('運送任務失敗!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
+            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         else:
             print('運送任務回傳狀態不合法!')
 
         # self.navigator.lifecycleShutdown()
 
         return
+    
+    def send_set_parameters_request(self, param_value):
+        param_name = "fitrobot_status"
+
+        val = ParameterValue(integer_value=param_value, type=ParameterType.PARAMETER_INTEGER)
+        req = SetParameters.Request(
+            parameters=[Parameter(name=param_name, value=val)]
+        )
+
+        future = self.cli.call_async(req)
+        future.add_done_callback(self.on_future_done)
+
+    def on_future_done(self, future):
+        try:
+            response = future.result()
+            if response.results[0].successful:
+                self.get_logger().info("Service call successful")
+        except Exception as e:
+            self.get_logger().error('Service call failed %r' % (e,))
+
 
 def main():
     rclpy.init()
