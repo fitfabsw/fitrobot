@@ -2,7 +2,7 @@
 Description=This is the lino bringup service
 StartLimitIntervalSec=160s
 StartLimitBurst=3
-TimeoutStartSec=10s
+TimeoutStartSec=20s
 
 [Service]
 Environment="RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" "LINOROBOT2_BASE=zbotlinosick2" "LINOROBOT2_LASER_SENSOR=nanoscan3" "CYCLONEDDS_URI=/home/pi/cyclonedds.xml"
