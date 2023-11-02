@@ -53,44 +53,39 @@ class RobotStatusCheckNode(Node):
 
     def status_check(self):
         try:
-            if self.robot_status == RobotStatus.STANDBY:
+            robot_status = self.get_parameter("fitrobot_status").get_parameter_value().integer_value
+            if robot_status == RobotStatus.STANDBY:
                 if self.is_tf_odom_baselink_existed():
                     self.get_logger().info("bringup")
-                    self.robot_status = RobotStatus.BRINGUP
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
                 return
 
-            elif self.robot_status == RobotStatus.BRINGUP:
+            elif robot_status == RobotStatus.BRINGUP:
                 if self.check_nav2_running():
                     self.get_logger().info("nav_prepare")
-                    self.robot_status = RobotStatus.NAV_PREPARE
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_PREPARE)])
                 elif not self.is_tf_odom_baselink_existed():
                     self.get_logger().info("standby")
-                    self.robot_status = RobotStatus.STANDBY
                     self.pub.publish(RobotStatus(status=RobotStatus.STANDBY))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.STANDBY)])
                 return
 
-            if self.robot_status == RobotStatus.NAV_PREPARE:
+            if robot_status == RobotStatus.NAV_PREPARE:
                 if self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_standby")
-                    self.robot_status = RobotStatus.NAV_STANDBY
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_STANDBY))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_STANDBY)])
                 elif not self.check_nav2_running():
                     self.get_logger().info("bringup")
-                    self.robot_status = RobotStatus.BRINGUP
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
                 return
 
-            elif self.robot_status == RobotStatus.NAV_STANDBY:
+            elif robot_status == RobotStatus.NAV_STANDBY:
                 if not self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_prepare")
-                    self.robot_status = RobotStatus.NAV_PREPARE
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_PREPARE)])
                 return
