@@ -23,7 +23,7 @@ class RobotStatusCheckNode(Node):
         self.declare_parameter('fitrobot_status', RobotStatus.STANDBY)
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
-        self.robot_status = RobotStatus.STANDBY
+        # self.robot_status = RobotStatus.STANDBY
         qos = QoSProfile(
             durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
             reliability=QoSReliabilityPolicy.RELIABLE,
