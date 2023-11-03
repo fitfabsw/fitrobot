@@ -37,6 +37,7 @@ ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{
 ros2 service call /is_localized std_srvs/srv/Trigger
 ros2 service call /target_station fitrobot_interfaces/srv/TargetStation
 
+ros2 service call /is_localized fitrobot std_msgs/msg/Trigger
 
 # simulations for quick testing
 ros2 launch linorobot2_gazebo gazebo.launch.py # default world: turtlebot3_world

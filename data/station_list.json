@@ -13,16 +13,16 @@
       {
         "type": "end",
         "name": "FA Room",
-        "x": 0.0,
-        "y": -2.0,
+        "x": 3.0,
+        "y": 0.0,
         "z": 0.0,
         "w": 1.0
       },
       {
         "type": "station",
         "name": "station1",
-        "x": 0.0,
-        "y": 2.0,
+        "x": 1.5,
+        "y": 0.0,
         "z": 0.0,
         "w": 1.0
       },
@@ -30,7 +30,31 @@
         "type": "station",
         "name": "station2",
         "x": 2.0,
-        "y": 0.0,
+        "y": 3.0,
+        "z": 0.0,
+        "w": 1.0
+      },
+      {
+        "type": "station",
+        "name": "station3",
+        "x": 0.0,
+        "y": 9.4,
+        "z": 0.0,
+        "w": 1.0
+      },
+      {
+        "type": "station",
+        "name": "station4",
+        "x": 7.0,
+        "y": 11.5,
+        "z": 0.0,
+        "w": 1.0
+      },
+      {
+        "type": "station",
+        "name": "station5",
+        "x": -4.0,
+        "y": 13.5,
         "z": 0.0,
         "w": 1.0
       }
