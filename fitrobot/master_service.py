@@ -20,7 +20,7 @@ class MasterService(Node):
             self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
         elif robot_type == 'artic':
             self.declare_parameter("active_nav_map", "office_res002_0523.yaml")
-        
+
         self.process_list = []
 
 
@@ -50,10 +50,11 @@ class MasterService(Node):
         map_name_param = Parameter('active_nav_map', Parameter.Type.STRING, map_name)
         self.set_parameters([map_name_param])
         map_path = f"map:={maploc}/{map_name}"
-        
+
         robot_type = os.getenv('ROBOT_TYPE', 'lino')
         if robot_type == 'lino':
-            p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+            # p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
+            p = Popen(f"ros2 launch linorobot2_navigation navigation.launch.py {map_path} 2>&1 | tee /tmp/master_service_nav_log.txt", shell=True)
         elif robot_type == 'artic':
             p = Popen(["ros2", "launch", "articubot_one", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
 
