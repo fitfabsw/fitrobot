@@ -9,7 +9,7 @@ from rcl_interfaces.srv import SetParameters
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
-from fitrobot_interfaces.srv import WaypointFollower, TargetStation
+from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master
 from fitrobot_interfaces.msg import Station, RobotStatus
 from script.robot_navigator import BasicNavigator, NavigationResult
 
@@ -23,21 +23,16 @@ class WaypointFollowerService(Node):
         self.start_station = None
         self.end_station = None
 
-        service_name = "/check_robot_status_node/set_parameters"
-        self.cli = self.create_client(SetParameters, service_name)
-        while not self.cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info(f"service {service_name} not available, waiting again...")
-
         self.get_logger().info(f'waypoint follower服務初始化')
         self.waypoint_srv = self.create_service(WaypointFollower, "waypoint_follower", self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
         self.target_station_srv = self.create_service(TargetStation, "target_station", self.target_station_callback, callback_group=MutuallyExclusiveCallbackGroup())
 
+        self.cli = self.wait_for_service("/check_robot_status_node/set_parameters", SetParameters)
         qos = QoSProfile(
           durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
           reliability=QoSReliabilityPolicy.RELIABLE,
           history=QoSHistoryPolicy.KEEP_LAST,
           depth=1)
-        
         self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
         self.sub = self.create_subscription(
             GoalStatusArray,
@@ -48,6 +43,7 @@ class WaypointFollowerService(Node):
         )
 
         self.navigator = BasicNavigator()
+        self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
 
     def waypoint_follower_callback(self, request, response):
@@ -71,7 +67,6 @@ class WaypointFollowerService(Node):
         if status == 2:
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
             self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
-
         elif status == 4:
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
             self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
@@ -152,6 +147,13 @@ class WaypointFollowerService(Node):
                 self.get_logger().info("Service call successful")
         except Exception as e:
             self.get_logger().error('Service call failed %r' % (e,))
+        
+    def wait_for_service(self, srv_name, srv_type):
+        cli = self.create_client(srv_type, srv_name)
+        while not cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info(f"服務{srv_name}尚未啟動，等待中...")
+
+        return cli
 
 
 def main():
