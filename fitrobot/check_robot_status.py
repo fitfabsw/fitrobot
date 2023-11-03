@@ -33,6 +33,13 @@ class RobotStatusCheckNode(Node):
         self.timer = self.create_timer(1.0, self.status_check)
         self.pub = self.create_publisher(RobotStatus, "robot_status", qos)
         self.get_logger().info("launch: standby")
+        self.is_localized = False
+        self.create_service(Trigger, "is_localized", self.srv_localized_callback)
+
+    def srv_localized_callback(self, request, response):
+        response.success = self.is_localized
+        response.message = f"is_localized: {self.is_localized}"
+        return response
 
     def check_tf(self, parent, child, timeout=0.5):
         can_trasform = self.tf_buffer.can_transform(
@@ -75,6 +82,7 @@ class RobotStatusCheckNode(Node):
             if robot_status == RobotStatus.NAV_PREPARE:
                 if self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_standby")
+                    self.is_localized = True
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_STANDBY))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_STANDBY)])
                 elif not self.check_nav2_running():
@@ -86,6 +94,7 @@ class RobotStatusCheckNode(Node):
             elif robot_status == RobotStatus.NAV_STANDBY:
                 if not self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_prepare")
+                    self.is_localized = False
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_PREPARE)])
                 return

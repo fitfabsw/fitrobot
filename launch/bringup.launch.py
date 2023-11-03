@@ -18,14 +18,11 @@ def generate_launch_description():
                 )
             )
         ),
-        Node(
-            package='fitrobot',
-            executable='tf_converter_node',
-        ),
-        Node(
-            package='fitrobot',
-            executable='check_tf_service',
-        ),
+        # Only needed by slam. Tempoeary disable
+        # Node(
+        #     package='fitrobot',
+        #     executable='tf_converter_node',
+        # ),
         Node(
             package='fitrobot',
             executable='master_service',
