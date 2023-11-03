@@ -62,9 +62,7 @@ class WaypointFollowerService(Node):
     
     def target_station_callback(self, request, response):
         self.get_logger().info(f'target station服務開始')
-
-        response.target_station = self.target_station
-        
+        response.target_station = self.target_station or Station()
         self.get_logger().info(f'target station服務結束')
         return response
     
