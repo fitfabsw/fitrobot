@@ -54,7 +54,8 @@ class MasterService(Node):
         robot_type = os.getenv('ROBOT_TYPE', 'lino')
         if robot_type == 'lino':
             # p = Popen(["ros2", "launch", "linorobot2_navigation", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
-            p = Popen(f"ros2 launch linorobot2_navigation navigation.launch.py {map_path} 2>&1 | tee /tmp/master_service_nav_log.txt", shell=True)
+            # p = Popen(f"ros2 launch linorobot2_navigation navigation.launch.py {map_path} 2>&1 | tee /tmp/master_service_nav_log.txt", shell=True)
+            p = Popen(f"ros2 launch linorobot2_navigation navigation_keepout.launch.py {map_path} 2>&1 | tee /tmp/master_service_nav_log.txt", shell=True)
         elif robot_type == 'artic':
             p = Popen(["ros2", "launch", "articubot_one", "navigation.launch.py", map_path], stdout=PIPE, stderr=PIPE)
 
