@@ -35,10 +35,7 @@ ros2 service call /save_map fitrobot interfaces/srv/SaveMap "{'map_name':MAP_YAM
 ros2 service call /list_map fitrobot_interfaces/srv/ListMap
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':0.5, 'y':0.0, 'z':0.0, 'w':1.0}}"
 ros2 service call /is_localized std_srvs/srv/Trigger
-
-
-# fitrobot topic
-ros2 topic echo /target_station
+ros2 service call /target_station fitrobot_interface/srv/TargetStation
 
 
 # simulations for quick testing
@@ -47,5 +44,4 @@ ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
 ros2 run fitrobot master_service
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
-ros2 topic echo target_station
 ros2 run fitrobot check_robot_status
