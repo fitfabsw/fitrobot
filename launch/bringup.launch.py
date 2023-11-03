@@ -40,6 +40,10 @@ def generate_launch_description():
         ),
         Node(
             package='fitrobot',
+            executable='check_robot_status',
+        ),
+        Node(
+            package='fitrobot',
             executable='waypoint_follower',
         ),
         Node(
