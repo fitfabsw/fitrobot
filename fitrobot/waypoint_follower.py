@@ -34,6 +34,7 @@ class WaypointFollowerService(Node):
           history=QoSHistoryPolicy.KEEP_LAST,
           depth=1)
         self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
+        self.station_pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
         self.sub = self.create_subscription(
             GoalStatusArray,
             "/navigate_to_pose/_action/status",
@@ -96,7 +97,6 @@ class WaypointFollowerService(Node):
             i = i + 1
             feedback = self.navigator.getFeedback()
             if feedback and i % 10 == 0:
-                # if current_status != self.target_station:
                 if current_status != feedback.current_waypoint:
                     if feedback.current_waypoint == 0:
                         self.target_station = station
@@ -107,6 +107,7 @@ class WaypointFollowerService(Node):
                     elif feedback.current_waypoint == 2:
                         self.target_station = self.start_station
                         print(f"返回充電座")
+                    self.station_pub.publish(self.target_station)
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
