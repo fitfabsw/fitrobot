@@ -9,7 +9,7 @@ from rcl_interfaces.srv import SetParameters
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
-from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master
+from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master, CancelNav
 from fitrobot_interfaces.msg import Station, RobotStatus
 from script.robot_navigator import BasicNavigator, NavigationResult
 
@@ -26,6 +26,7 @@ class WaypointFollowerService(Node):
         self.get_logger().info(f'waypoint follower服務初始化')
         self.waypoint_srv = self.create_service(WaypointFollower, "waypoint_follower", self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
         self.target_station_srv = self.create_service(TargetStation, "target_station", self.target_station_callback, callback_group=MutuallyExclusiveCallbackGroup())
+        self.cancel_nav_srv = self.create_service(CancelNav, "cancel_nav", self.cancel_nav_callback, callback_group=MutuallyExclusiveCallbackGroup())
 
         self.cli = self.wait_for_service("/check_robot_status_node/set_parameters", SetParameters)
         qos = QoSProfile(
@@ -63,6 +64,13 @@ class WaypointFollowerService(Node):
         self.get_logger().info(f'target station服務開始')
         response.target_station = self.target_station or Station()
         self.get_logger().info(f'target station服務結束')
+        return response
+
+    def cancel_nav_callback(self, request, response):
+        self.get_logger().info(f'cancel nav服務開始')
+        self.navigator.cancelNav()
+        response.ack = "SUCCESS"
+        self.get_logger().info(f'cancel nav服務結束')
         return response
     
     def status_callback(self, msg):
