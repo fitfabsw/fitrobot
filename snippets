@@ -46,3 +46,10 @@ ros2 run fitrobot master_service
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
 ros2 run fitrobot check_robot_status
+
+# fitrobot topic
+ros2 topic echo /target_station
+
+# debug
+sudo journalctl -u fitrobot_lino.bringup.service -f -n 1000
+tail -f /tmp/masterservice_nav_log.txt -n 1000
