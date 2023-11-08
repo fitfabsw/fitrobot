@@ -81,17 +81,17 @@ class RobotStatusCheckNode(Node):
 
             if robot_status == RobotStatus.NAV_PREPARE:
                 if self.is_tf_odom_map_existed():
-                    self.get_logger().info("nav_standby")
+                    self.get_logger().info("nav_ready")
                     self.is_localized = True
-                    self.pub.publish(RobotStatus(status=RobotStatus.NAV_STANDBY))
-                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_STANDBY)])
+                    self.pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_READY)])
                 elif not self.check_nav2_running():
                     self.get_logger().info("bringup")
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
                 return
 
-            elif robot_status == RobotStatus.NAV_STANDBY:
+            elif robot_status == RobotStatus.NAV_READY:
                 if not self.is_tf_odom_map_existed():
                     self.get_logger().info("nav_prepare")
                     self.is_localized = False
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     [INFO] [1698830984.888322671] [check_robot_status_node]: launch: standby
     [INFO] [1698830994.859154921] [check_robot_status_node]: bringup
     [INFO] [1698831006.859219936] [check_robot_status_node]: nav_prepare
-    [INFO] [1698831013.862822112] [check_robot_status_node]: nav_standby
+    [INFO] [1698831013.862822112] [check_robot_status_node]: nav_ready
 
     # subsribe topic
     # ros2 topic echo /robot_status
