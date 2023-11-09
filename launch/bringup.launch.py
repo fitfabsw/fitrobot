@@ -24,6 +24,10 @@ def generate_launch_description():
         ),
         Node(
             package='fitrobot',
+            executable='master_async_service',
+        ),
+        Node(
+            package='fitrobot',
             executable='save_map_service',
         ),
         Node(
