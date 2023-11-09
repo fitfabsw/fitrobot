@@ -128,11 +128,11 @@ class WaypointFollowerService(Node):
         elif result == NavigationResult.CANCELED:
             print('運送任務取消!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
+            self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
         elif result == NavigationResult.FAILED:
             print('運送任務失敗!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
+            self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
         else:
             print('運送任務回傳狀態不合法!')
 
