@@ -18,10 +18,10 @@ def generate_launch_description():
                 )
             )
         ),
-        Node(
-            package='fitrobot',
-            executable='master_service',
-        ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='master_service',
+        # ),
         Node(
             package='fitrobot',
             executable='master_async_service',
@@ -34,8 +34,12 @@ def generate_launch_description():
             package='fitrobot',
             executable='list_map_service',
         ),
+        # Node(
+        #     package='fitrobot',
+        #     executable='check_robot_status',
+        # ),
         Node(
-            package='fitrobot',
+            package='fitrobotcpp',
             executable='check_robot_status',
         ),
         Node(

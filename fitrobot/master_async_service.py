@@ -16,8 +16,10 @@ from fitrobot_interfaces.srv import Master, TerminateProcess
 
 class MasterAsyncService(Node):
     def __init__(self):
-        super().__init__("master_async_service")
-        self.srv = self.create_service(Master, "run_slam_or_navigation", self.master_callback)
+        super().__init__("master_service")
+        # super().__init__("master_async_service")
+        self.srv = self.create_service(Master, "master", self.master_callback)
+        # self.srv = self.create_service(Master, "run_slam_or_navigation", self.master_callback)
         self.terminate_service = self.create_service(
             TerminateProcess, "terminate_slam_or_navigation", self.terminate_slam_or_navigation_callback
         )
