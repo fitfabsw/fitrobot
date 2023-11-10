@@ -11,7 +11,7 @@ from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
 from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master, CancelNav
 from fitrobot_interfaces.msg import Station, RobotStatus
-from script.robot_navigator import BasicNavigator, NavigationResult
+from script.robot_navigator import BasicNavigator, TaskResult
 
 
 class WaypointFollowerService(Node):
@@ -70,7 +70,7 @@ class WaypointFollowerService(Node):
 
     def cancel_nav_callback(self, request, response):
         self.get_logger().info(f'cancel nav服務開始')
-        self.navigator.cancelNav()
+        self.navigator.cancelTask()
         response.ack = "SUCCESS"
         self.get_logger().info(f'cancel nav服務結束')
         return response
@@ -105,7 +105,7 @@ class WaypointFollowerService(Node):
 
         i = 0
         current_status = None
-        while not self.navigator.isNavComplete():
+        while not self.navigator.isTaskComplete():
             i = i + 1
             feedback = self.navigator.getFeedback()
             if feedback and i % 10 == 0:
@@ -123,15 +123,15 @@ class WaypointFollowerService(Node):
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
-        if result == NavigationResult.SUCCEEDED:
+        if result == TaskResult.SUCCEEDED:
             print('運送任務完成!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
             self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
-        elif result == NavigationResult.CANCELED:
+        elif result == TaskResult.CANCELED:
             print('運送任務取消!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
             self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
-        elif result == NavigationResult.FAILED:
+        elif result == TaskResult.FAILED:
             print('運送任務失敗!')
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
             self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
