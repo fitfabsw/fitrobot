@@ -58,6 +58,10 @@ class RobotStatusCheckNode(Node):
         nodenames = self.get_node_names()
         return True if "bt_navigator" in nodenames else False
 
+    def check_slam_running(self):
+        nodenames = self.get_node_names()
+        return True if "slam_toolbox" in nodenames else False
+
     def status_check(self):
         try:
             robot_status = self.get_parameter("fitrobot_status").get_parameter_value().integer_value
@@ -86,6 +90,13 @@ class RobotStatusCheckNode(Node):
                     self.pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.NAV_READY)])
                 elif not self.check_nav2_running():
+                    self.get_logger().info("bringup")
+                    self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
+                    self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
+                return
+
+            if robot_status == RobotStatus.SLAM:
+                if not self.check_slam_running():
                     self.get_logger().info("bringup")
                     self.pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                     self.set_parameters([Parameter('fitrobot_status', Parameter.Type.INTEGER, RobotStatus.BRINGUP)])
