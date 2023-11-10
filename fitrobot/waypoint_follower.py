@@ -47,6 +47,8 @@ class WaypointFollowerService(Node):
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
+
+        self.navigator.waitUntilNav2Active()
         self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_READY))
         self.send_set_parameters_request(RobotStatus.NAV_WF_READY)
 
