@@ -44,10 +44,10 @@ ros2 service call /is_localized fitrobot std_msgs/msg/Trigger
 ros2 launch linorobot2_gazebo gazebo.launch.py # default world: turtlebot3_world
 ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
 
+ros2 run fitrobot check_robot_status
+ros2 run fitrobotcpp check_robot_status
 # ros2 run fitrobot master_service
 ros2 run fitrobot master_async_service
-# ros2 run fitrobot check_robot_status
-ros2 run fitrobotcpp check_robot_status
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
 

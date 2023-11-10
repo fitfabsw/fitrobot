@@ -120,7 +120,8 @@ class MasterAsyncService(Node):
     async def ros_spin(self):
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0)
-            await asyncio.sleep(0.01)
+            # await asyncio.sleep(0.01)  # no need for high frequency. also help reduce CPU usage
+            await asyncio.sleep(1)
 
     def terminate_slam_or_navigation_callback(self, request, response):
         self.get_logger().info("Terminating navigation...")
@@ -179,17 +180,22 @@ class MasterAsyncService(Node):
 
         self.get_logger().info("...1")
 
-        # for simualtions
-        # maploc = os.path.join(
-        #     get_package_share_directory("linorobot2_navigation"), "maps"
-        # )
-        # map_path = f"map:={maploc}/{map_name}"
-
-        # for real robots
-        maploc = os.path.join(get_package_share_directory("fitrobot"), "maps")
-        map_path = f"map:={maploc}/{map_name}"
-
         robot_type = os.getenv("ROBOT_TYPE", "lino")
+        use_sim = bool(os.getenv("USE_SIM", 0))
+
+        if use_sim:
+            # for simualtions
+            maploc = os.path.join(
+                get_package_share_directory("linorobot2_navigation"), "maps"
+            )
+            maskloc = os.path.join(
+                get_package_share_directory("linorobot2_navigation"), "masks"
+            )
+        else:
+            # for real robots
+            maploc = os.path.join(get_package_share_directory("fitrobot"), "maps")
+            maskloc = os.path.join(get_package_share_directory("fitrobot"), "masks")
+        map_path = f"map:={maploc}/{map_name}"
 
         launch_file_name = "navigation.launch.py"
         if robot_type == "artic":
