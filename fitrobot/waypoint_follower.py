@@ -18,6 +18,7 @@ class WaypointFollowerService(Node):
 
     def __init__(self):
         super().__init__('waypoint_follower_service')
+        self.unfinished_station_count = 0
         self.robot_status = None
         self.target_station = None
         self.start_station = None
@@ -54,10 +55,9 @@ class WaypointFollowerService(Node):
 
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info(f'waypoint follower服務開始')
-
+        self.unfinished_station_count += 1
         station = request.station
         self.add_station(station)
-        
         self.get_logger().info(f'waypoint follower服務結束')
 
         return response
@@ -71,6 +71,8 @@ class WaypointFollowerService(Node):
     def cancel_nav_callback(self, request, response):
         self.get_logger().info(f'cancel nav服務開始')
         self.navigator.cancelTask()
+        self.unfinished_station_count -= 1
+        self.go_home_check()
         response.ack = "SUCCESS"
         self.get_logger().info(f'cancel nav服務結束')
         return response
@@ -95,8 +97,14 @@ class WaypointFollowerService(Node):
 
         return pose
     
+    def go_home_check(self):
+        if self.unfinished_station_count<=0 and self.target_station != self.start_station:
+            self.target_station = self.start_station
+            self.navigator.followWaypoints([self.convert_station_to_pose(self.start_station)])
+            print('所有運送任務已完成，返回充電站!')
+    
     def add_station(self, station: Station):
-        goal_stations = [station, self.end_station, self.start_station]
+        goal_stations = [station, self.end_station]
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
         self.navigator.followWaypoints(goal_poses)
         self.target_station = station
@@ -116,15 +124,19 @@ class WaypointFollowerService(Node):
                     elif feedback.current_waypoint == 1:
                         self.target_station = self.end_station
                         print(f"運送至FA Room")
-                    elif feedback.current_waypoint == 2:
-                        self.target_station = self.start_station
-                        print(f"返回充電座")
+                    # elif feedback.current_waypoint == 2:
+                    #     self.target_station = self.start_station
+                    #     print(f"返回充電座")
                     self.station_pub.publish(self.target_station)
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             print('運送任務完成!')
+            self.unfinished_station_count -= 1
+
+            self.go_home_check()
+
             self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
             self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         elif result == TaskResult.CANCELED:
@@ -157,7 +169,8 @@ class WaypointFollowerService(Node):
         try:
             response = future.result()
             if response.results[0].successful:
-                self.get_logger().info("Service call successful")
+                pass
+                # self.get_logger().info("Service call successful")
         except Exception as e:
             self.get_logger().error('Service call failed %r' % (e,))
         
