@@ -185,7 +185,7 @@ class RobotStatusCheckNode(Node):
 
             elif robot_status == RobotStatus.BRINGUP:
                 if self.check_nav2_running():
-                    self.get_logger().info("nav_prepare")
+                    self.get_logger().info("NAV_PREPARE")
                     self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_rs_parameter(RobotStatus.NAV_PREPARE)
                 elif not self.is_tf_odom_baselink_existed():
@@ -196,7 +196,7 @@ class RobotStatusCheckNode(Node):
 
             if robot_status == RobotStatus.NAV_PREPARE:
                 if self.is_tf_odom_map_existed():
-                    self.get_logger().info("nav_ready")
+                    self.get_logger().info("NAV_READY")
                     self.is_localized = True
                     self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
                     self.set_rs_parameter(RobotStatus.NAV_READY)
@@ -213,9 +213,22 @@ class RobotStatusCheckNode(Node):
                     self.set_rs_parameter(RobotStatus.BRINGUP)
                 return
 
-            elif robot_status == RobotStatus.NAV_READY:
+            # this is expensive, needed to be optimized
+            # elif robot_status == RobotStatus.NAV_READY:
+            elif robot_status in [
+                RobotStatus.NAV_READY,
+                # RobotStatus.NAV_RUNNING,
+                RobotStatus.NAV_ARRIVED,
+                RobotStatus.NAV_CANCEL,
+                RobotStatus.NAV_FAILED,
+                # RobotStatus.NAV_WF_RUNNING,
+                RobotStatus.NAV_WF_ARRIVED,
+                RobotStatus.NAV_WF_COMPLETED,
+                RobotStatus.NAV_WF_CANCEL,
+                RobotStatus.NAV_WF_FAILED,
+            ]:
                 if not self.is_tf_odom_map_existed():
-                    self.get_logger().info("nav_prepare")
+                    self.get_logger().info("NAV_PREPARE")
                     self.is_localized = False
                     self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_rs_parameter(RobotStatus.NAV_PREPARE)
@@ -225,9 +238,9 @@ class RobotStatusCheckNode(Node):
             self.get_logger().error("Transform lookup failed: {0}".format(str(ex)))
 
     def set_rs_parameter(self, status_value):
-        self.set_parameters(
-            [Parameter("fitrobot_status", Parameter.Type.INTEGER, status_value)]
-        )
+        self.set_parameters([
+            Parameter("fitrobot_status", Parameter.Type.INTEGER, status_value)
+        ])
 
 
 def main(args=None):
@@ -249,8 +262,8 @@ if __name__ == "__main__":
     ros2 run fitrobot check_robot_status
     [INFO] [1698830984.888322671] [check_robot_status_node]: launch: standby
     [INFO] [1698830994.859154921] [check_robot_status_node]: bringup
-    [INFO] [1698831006.859219936] [check_robot_status_node]: nav_prepare
-    [INFO] [1698831013.862822112] [check_robot_status_node]: nav_ready
+    [INFO] [1698831006.859219936] [check_robot_status_node]: NAV_PREPARE
+    [INFO] [1698831013.862822112] [check_robot_status_node]: NAV_READY
 
     # subsribe topic
     # ros2 topic echo /robot_status
