@@ -37,24 +37,44 @@ ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{
 ros2 service call /is_localized std_srvs/srv/Trigger
 ros2 service call /target_station fitrobot_interfaces/srv/TargetStation
 ros2 service call /terminate_slam_or_navigation fitrobot_interfaces/srv/TerminateProcess
-
 ros2 service call /is_localized fitrobot std_msgs/msg/Trigger
 
-# simulations for quick testing
-ros2 launch linorobot2_gazebo gazebo.launch.py # default world: turtlebot3_world
-ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
 
+
+# =============================================================
+# simulations for quick testing manually
+#
+# default map: $WORKSPACE/zbot_lino/linorobot2/linorobot2_navigation/maps/turtlebot3_world.yaml
+# =============================================================
+ros2 launch linorobot2_gazebo gazebo.launch.py
+ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
 ros2 run fitrobot check_robot_status
-ros2 run fitrobotcpp check_robot_status
+# ros2 run fitrobotcpp check_robot_status
 # ros2 run fitrobot master_service
 ros2 run fitrobot master_async_service
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
 
 
+
+# =============================================================
+# simulations with fitrobot services
+#
+# default map: $WORKSPACE/zbot_lino/linorobot2/linorobot2_navigation/maps/turtlebot3_world.yaml
+# =============================================================
+ros2 launch linorobot2_gazebo gazebo.launch.py
+USE_SIM=1 ros2 launch fitrobot bringup.launch.py
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'turtlebot3_world.yaml' }"
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'slam' , 'request_param':'' }"
+ros2 service call /terminate_slam_or_navigation fitrobot_interfaces/srv/TerminateProcess
+
+
+
 # fitrobot topic
 ros2 topic echo /target_station
 
+
 # debug
 sudo journalctl -u fitrobot_lino.bringup.service -f -n 1000
-tail -f /tmp/masterservice_nav_log.txt -n 1000
+tail -f /tmp/master_service_nav_log.txt -n 1000
+tail -f /tmp/master_service_slam_log.txt -n 1000
