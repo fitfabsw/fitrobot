@@ -37,7 +37,7 @@ ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{
 ros2 service call /is_localized std_srvs/srv/Trigger
 ros2 service call /target_station fitrobot_interfaces/srv/TargetStation
 ros2 service call /terminate_slam_or_navigation fitrobot_interfaces/srv/TerminateProcess
-
+ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
 
 
 # =============================================================
@@ -52,7 +52,7 @@ ros2 run fitrobot check_robot_status
 # ros2 run fitrobot master_service
 ros2 run fitrobot master_async_service
 ros2 run fitrobot waypoint_follower
-ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':-2.0, 'y':0.0, 'z':0.707, 'w':0.707}}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':0.5, 'y':1.5, 'z':0.707, 'w':0.707}}"
 
 
 
@@ -66,6 +66,7 @@ USE_SIM=1 ros2 launch fitrobot bringup.launch.py
 ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'turtlebot3_world.yaml' }"
 ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'slam' , 'request_param':'' }"
 ros2 service call /terminate_slam_or_navigation fitrobot_interfaces/srv/TerminateProcess
+ros2 param get /check_robot_status_node fitrobot_status
 
 
 

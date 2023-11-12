@@ -51,33 +51,33 @@ class WaypointFollowerService(Node):
             history=QoSHistoryPolicy.KEEP_LAST,
             depth=1,
         )
-        self.status_pub = self.create_publisher(
-            RobotStatus,
-            "robot_status",
-            qos,
-            callback_group=MutuallyExclusiveCallbackGroup(),
-        )
+        # self.status_pub = self.create_publisher(
+        #     RobotStatus,
+        #     "robot_status",
+        #     qos,
+        #     callback_group=MutuallyExclusiveCallbackGroup(),
+        # )
         self.station_pub = self.create_publisher(
             Station,
             "target_station",
             qos,
             callback_group=MutuallyExclusiveCallbackGroup(),
         )
-        self.sub = self.create_subscription(
-            GoalStatusArray,
-            "/navigate_to_pose/_action/status",
-            self.status_callback,
-            10,
-            callback_group=MutuallyExclusiveCallbackGroup(),
-        )
+        # self.sub = self.create_subscription(
+        #     GoalStatusArray,
+        #     "/navigate_to_pose/_action/status",
+        #     self.status_callback,
+        #     10,
+        #     callback_group=MutuallyExclusiveCallbackGroup(),
+        # )
 
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
 
         self.navigator.waitUntilNav2Active()
-        self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
-        self.send_set_parameters_request(RobotStatus.NAV_READY)
+        # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
+        # self.send_set_parameters_request(RobotStatus.NAV_READY)
 
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info("waypoint follower服務開始")
@@ -102,14 +102,14 @@ class WaypointFollowerService(Node):
         self.get_logger().info("cancel nav服務結束")
         return response
 
-    def status_callback(self, msg):
-        status = msg.status_list[-1].status
-        if status == 2:
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
-        elif status == 4:
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
+    # def status_callback(self, msg):
+    #     status = msg.status_list[-1].status
+    #     if status == 2:
+    #         self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
+    #         self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
+    #     elif status == 4:
+    #         self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
+    #         self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
 
     def convert_station_to_pose(self, station: Station) -> PoseStamped:
         pose = PoseStamped()
@@ -159,16 +159,16 @@ class WaypointFollowerService(Node):
         result = self.navigator.getResult()
         if result == TaskResult.SUCCEEDED:
             print("運送任務完成!")
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         elif result == TaskResult.CANCELED:
             print("運送任務取消!")
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
         elif result == TaskResult.FAILED:
             print("運送任務失敗!")
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
         else:
             print("運送任務回傳狀態不合法!")
 
