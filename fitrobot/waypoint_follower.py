@@ -15,7 +15,6 @@ from script.robot_navigator import BasicNavigator, TaskResult
 
 
 class WaypointFollowerService(Node):
-
     def __init__(self):
         super().__init__('waypoint_follower_service')
         self.unfinished_station_count = 0
@@ -24,34 +23,62 @@ class WaypointFollowerService(Node):
         self.start_station = None
         self.end_station = None
 
-        self.get_logger().info(f'waypoint follower服務初始化')
-        self.waypoint_srv = self.create_service(WaypointFollower, "waypoint_follower", self.waypoint_follower_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        self.target_station_srv = self.create_service(TargetStation, "target_station", self.target_station_callback, callback_group=MutuallyExclusiveCallbackGroup())
-        self.cancel_nav_srv = self.create_service(CancelNav, "cancel_nav", self.cancel_nav_callback, callback_group=MutuallyExclusiveCallbackGroup())
-
-        self.cli = self.wait_for_service("/check_robot_status_node/set_parameters", SetParameters)
-        qos = QoSProfile(
-          durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
-          reliability=QoSReliabilityPolicy.RELIABLE,
-          history=QoSHistoryPolicy.KEEP_LAST,
-          depth=1)
-        self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
-        self.station_pub = self.create_publisher(Station, "target_station", qos, callback_group=MutuallyExclusiveCallbackGroup())
-        self.sub = self.create_subscription(
-            GoalStatusArray,
-            "/navigate_to_pose/_action/status",
-            self.status_callback,
-            10,
-            callback_group=MutuallyExclusiveCallbackGroup()
+        self.get_logger().info("waypoint follower服務初始化")
+        self.waypoint_srv = self.create_service(
+            WaypointFollower,
+            "waypoint_follower",
+            self.waypoint_follower_callback,
+            callback_group=MutuallyExclusiveCallbackGroup(),
         )
+        self.target_station_srv = self.create_service(
+            TargetStation,
+            "target_station",
+            self.target_station_callback,
+            callback_group=MutuallyExclusiveCallbackGroup(),
+        )
+        self.cancel_nav_srv = self.create_service(
+            CancelNav,
+            "cancel_nav",
+            self.cancel_nav_callback,
+            callback_group=MutuallyExclusiveCallbackGroup(),
+        )
+
+        self.cli = self.wait_for_service(
+            "/check_robot_status_node/set_parameters", SetParameters
+        )
+        qos = QoSProfile(
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+        # self.status_pub = self.create_publisher(
+        #     RobotStatus,
+        #     "robot_status",
+        #     qos,
+        #     callback_group=MutuallyExclusiveCallbackGroup(),
+        # )
+        self.station_pub = self.create_publisher(
+            Station,
+            "target_station",
+            qos,
+            callback_group=MutuallyExclusiveCallbackGroup(),
+        )
+        # self.sub = self.create_subscription(
+        #     GoalStatusArray,
+        #     "/navigate_to_pose/_action/status",
+        #     self.status_callback,
+        #     10,
+        #     callback_group=MutuallyExclusiveCallbackGroup(),
+        # )
 
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
 
         self.navigator.waitUntilNav2Active()
-        self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
-        self.send_set_parameters_request(RobotStatus.NAV_READY)
+        # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_READY))
+        # self.send_set_parameters_request(RobotStatus.NAV_READY)
 
     def waypoint_follower_callback(self, request, response):
         self.get_logger().info(f'waypoint follower服務開始')
@@ -61,34 +88,34 @@ class WaypointFollowerService(Node):
         self.get_logger().info(f'waypoint follower服務結束')
 
         return response
-    
+
     def target_station_callback(self, request, response):
-        self.get_logger().info(f'target station服務開始')
+        self.get_logger().info("target station服務開始")
         response.target_station = self.target_station or Station()
-        self.get_logger().info(f'target station服務結束')
+        self.get_logger().info("target station服務結束")
         return response
 
     def cancel_nav_callback(self, request, response):
-        self.get_logger().info(f'cancel nav服務開始')
+        self.get_logger().info("cancel nav服務開始")
         self.navigator.cancelTask()
         self.unfinished_station_count -= 1
         self.go_home_check()
         response.ack = "SUCCESS"
-        self.get_logger().info(f'cancel nav服務結束')
+        self.get_logger().info("cancel nav服務結束")
         return response
-    
-    def status_callback(self, msg):
-        status = msg.status_list[-1].status
-        if status == 2:
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
-        elif status == 4:
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
-    
+
+    # def status_callback(self, msg):
+    #     status = msg.status_list[-1].status
+    #     if status == 2:
+    #         self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_RUNNING))
+    #         self.send_set_parameters_request(RobotStatus.NAV_WF_RUNNING)
+    #     elif status == 4:
+    #         self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_ARRIVED))
+    #         self.send_set_parameters_request(RobotStatus.NAV_WF_ARRIVED)
+
     def convert_station_to_pose(self, station: Station) -> PoseStamped:
         pose = PoseStamped()
-        pose.header.frame_id = 'map'
+        pose.header.frame_id = "map"
         pose.header.stamp = self.navigator.get_clock().now().to_msg()
         pose.pose.position.x = station.x
         pose.pose.position.y = station.y
@@ -108,8 +135,11 @@ class WaypointFollowerService(Node):
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
         self.navigator.followWaypoints(goal_poses)
         self.target_station = station
-        
-        print(f"開始執行站點 (name:{self.target_station.name}, x:{self.target_station.x}, y:{self.target_station.y}) 運送任務")
+
+        print(
+            f"開始執行站點 (name:{self.target_station.name}, x:{self.target_station.x},"
+            f" y:{self.target_station.y}) 運送任務"
+        )
 
         i = 0
         current_status = None
@@ -120,7 +150,11 @@ class WaypointFollowerService(Node):
                 if current_status != feedback.current_waypoint:
                     if feedback.current_waypoint == 0:
                         self.target_station = station
-                        print(f"前往站點 (name:{self.target_station.name}, x:{self.target_station.x}, y:{self.target_station.y}) 運送任務")
+                        print(
+                            f"前往站點 (name:{self.target_station.name},"
+                            f" x:{self.target_station.x}, y:{self.target_station.y})"
+                            " 運送任務"
+                        )
                     elif feedback.current_waypoint == 1:
                         self.target_station = self.end_station
                         print(f"運送至FA Room")
@@ -134,33 +168,29 @@ class WaypointFollowerService(Node):
         if result == TaskResult.SUCCEEDED:
             print('運送任務完成!')
             self.unfinished_station_count -= 1
-
             self.go_home_check()
-
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_COMPLETED))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_COMPLETED)
         elif result == TaskResult.CANCELED:
-            print('運送任務取消!')
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
+            print("運送任務取消!")
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_CANCEL))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_CANCEL)
         elif result == TaskResult.FAILED:
-            print('運送任務失敗!')
-            self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
-            self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
+            print("運送任務失敗!")
+            # self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_WF_FAILED))
+            # self.send_set_parameters_request(RobotStatus.NAV_WF_FAILED)
         else:
-            print('運送任務回傳狀態不合法!')
-
-        # self.navigator.lifecycleShutdown()
+            print("運送任務回傳狀態不合法!")
 
         return
-    
+
     def send_set_parameters_request(self, param_value):
         param_name = "fitrobot_status"
 
-        val = ParameterValue(integer_value=param_value, type=ParameterType.PARAMETER_INTEGER)
-        req = SetParameters.Request(
-            parameters=[Parameter(name=param_name, value=val)]
+        val = ParameterValue(
+            integer_value=param_value, type=ParameterType.PARAMETER_INTEGER
         )
+        req = SetParameters.Request(parameters=[Parameter(name=param_name, value=val)])
 
         future = self.cli.call_async(req)
         future.add_done_callback(self.on_future_done)
@@ -172,8 +202,8 @@ class WaypointFollowerService(Node):
                 pass
                 # self.get_logger().info("Service call successful")
         except Exception as e:
-            self.get_logger().error('Service call failed %r' % (e,))
-        
+            self.get_logger().error("Service call failed %r" % (e,))
+
     def wait_for_service(self, srv_name, srv_type):
         cli = self.create_client(srv_type, srv_name)
         while not cli.wait_for_service(timeout_sec=1.0):
@@ -195,5 +225,5 @@ def main():
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -31,7 +31,6 @@ class MasterAsyncService(Node):
           depth=1)
         self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
         self.srv = self.create_service(Master, "master", self.master_callback)
-        # self.srv = self.create_service(Master, "run_slam_or_navigation", self.master_callback)
         self.terminate_service = self.create_service(
             TerminateProcess,
             "terminate_slam_or_navigation",
@@ -51,7 +50,6 @@ class MasterAsyncService(Node):
         self.cli = self.wait_for_service(
             "/check_robot_status_node/set_parameters", SetParameters
         )
-        self.robot_status = None
 
     def send_set_parameters_request(self, param_value):
         param_name = "fitrobot_status"
@@ -70,27 +68,13 @@ class MasterAsyncService(Node):
         except Exception as e:
             self.get_logger().error('Service call failed %r' % (e,))
 
-    def send_get_parameters_request(self):
-        # self.get_logger().info(f"send-get_parameters_request!!")
+    async def send_get_parameters_request(self):
         req = GetParameters.Request()
         req.names = ["fitrobot_status"]
-        # self.get_logger().info(f"send-get_parameters_request!!  ...1")
         future = self.get_cli.call_async(req)
-        future.add_done_callback(self.on_get_future_done)
-        # self.get_logger().info(f"send-get_parameters_request!!  ...2")
-        return
-
-    def on_get_future_done(self, future):
-        # self.get_logger().info(f"on_get_futer_done!!!")
-        try:
-            response = future.result()
-            for value in response.values:
-                self.get_logger().info(
-                    f"Retrieved parameter value: {value.integer_value}"
-                )
-                self.robot_status = value.integer_value
-        except Exception as e:
-            self.get_logger().error(f"Service call failed: {e}")
+        response = await future
+        robot_status = response.values[0].integer_value
+        return robot_status
 
     def wait_for_service(self, srv_name, srv_type):
         cli = self.create_client(srv_type, srv_name)
@@ -120,7 +104,8 @@ class MasterAsyncService(Node):
     async def ros_spin(self):
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0)
-            await asyncio.sleep(0.01)
+            # await asyncio.sleep(0.01)  # no need for high frequency. also help reduce CPU usage
+            await asyncio.sleep(1)
 
     def terminate_slam_or_navigation_callback(self, request, response):
         self.get_logger().info("Terminating navigation...")
@@ -131,10 +116,10 @@ class MasterAsyncService(Node):
 
     async def ensure_robotstatus_bringup(self):
         while True:
-            self.send_get_parameters_request()
-            await asyncio.sleep(1)
-            if self.robot_status == 1:
+            robot_status = await self.send_get_parameters_request()
+            if robot_status == 1:
                 break
+            await asyncio.sleep(1)
 
     async def ensure_robotstatus_slam(self):
         while "slam_toolbox" not in self.get_node_names():
@@ -179,17 +164,22 @@ class MasterAsyncService(Node):
 
         self.get_logger().info("...1")
 
-        # for simualtions
-        # maploc = os.path.join(
-        #     get_package_share_directory("linorobot2_navigation"), "maps"
-        # )
-        # map_path = f"map:={maploc}/{map_name}"
-
-        # for real robots
-        maploc = os.path.join(get_package_share_directory("fitrobot"), "maps")
-        map_path = f"map:={maploc}/{map_name}"
-
         robot_type = os.getenv("ROBOT_TYPE", "lino")
+        use_sim = bool(os.getenv("USE_SIM", 0))
+
+        if use_sim:
+            # for simualtions
+            maploc = os.path.join(
+                get_package_share_directory("linorobot2_navigation"), "maps"
+            )
+            maskloc = os.path.join(
+                get_package_share_directory("linorobot2_navigation"), "masks"
+            )
+        else:
+            # for real robots
+            maploc = os.path.join(get_package_share_directory("fitrobot"), "maps")
+            maskloc = os.path.join(get_package_share_directory("fitrobot"), "masks")
+        map_path = f"map:={maploc}/{map_name}"
 
         launch_file_name = "navigation.launch.py"
         if robot_type == "artic":
