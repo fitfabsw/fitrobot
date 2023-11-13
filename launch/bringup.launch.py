@@ -34,14 +34,14 @@ def generate_launch_description():
             package='fitrobot',
             executable='list_map_service',
         ),
-        Node(
-            package='fitrobot',
-            executable='check_robot_status',
-        ),
         # Node(
-        #     package='fitrobotcpp',
+        #     package='fitrobot',
         #     executable='check_robot_status',
         # ),
+        Node(
+            package='fitrobotcpp',
+            executable='check_robot_status',
+        ),
         Node(
             package='fitrobot',
             executable='waypoint_follower',
