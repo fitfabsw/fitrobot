@@ -125,6 +125,7 @@ class WaypointFollowerService(Node):
         return pose
     
     def go_home_check(self):
+        # If there are no stations waiting for service and the robot is not on the way home, then navigate it to go home.
         if self.unfinished_station_count<=0 and self.target_station != self.start_station:
             self.target_station = self.start_station
             self.navigator.followWaypoints([self.convert_station_to_pose(self.start_station)])
