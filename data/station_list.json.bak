@@ -110,7 +110,7 @@
       }
     ]
   },
-  "turtlebot_world.yaml": {
+  "turtlebot3_world.yaml": {
     "path": "~/fitrobot_map",
     "station_list": [
       {
@@ -147,7 +147,7 @@
       }
     ]
   },
-  "turtlebot_house.yaml": {
+  "turtlebot3_house.yaml": {
     "path": "~/fitrobot_map",
     "station_list": [
       {
