@@ -130,14 +130,6 @@ class WaypointFollowerService(Node):
             # result.name in [SUCCEEDED, CANCELED, FAILED, UNKNOWN]
             f"站點[{goal_stations[feedback.current_waypoint].name}]任務狀態:{result.name}"
         ) 
-        # if result == TaskResult.SUCCEEDED:
-        #     self.get_logger().info(f"[{goal_stations[feedback.current_waypoint].name}]運送任務完成!")
-        # elif result == TaskResult.CANCELED:
-        #     self.get_logger().info(f"[{goal_stations[feedback.current_waypoint].name}]運送任務取消!")
-        # elif result == TaskResult.FAILED:
-        #     self.get_logger().info(f"[{goal_stations[feedback.current_waypoint].name}]運送任務失敗!")
-        # else:
-        #     self.get_logger().info(f"[{goal_stations[feedback.current_waypoint].name}]運送任務回傳狀態不合法!")
 
         return
 
