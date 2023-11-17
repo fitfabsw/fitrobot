@@ -23,24 +23,35 @@ from fitrobot_interfaces.msg import RobotStatus
 class MasterAsyncService(Node):
     def __init__(self):
         super().__init__("master_service")
-        # super().__init__("master_async_service")
         qos = QoSProfile(
-          durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
-          reliability=QoSReliabilityPolicy.RELIABLE,
-          history=QoSHistoryPolicy.KEEP_LAST,
-          depth=1)
-        self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos, callback_group=MutuallyExclusiveCallbackGroup())
+            durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
+            reliability=QoSReliabilityPolicy.RELIABLE,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1,
+        )
+        self.status_pub = self.create_publisher(
+            RobotStatus,
+            "robot_status",
+            qos,
+            callback_group=MutuallyExclusiveCallbackGroup(),
+        )
         self.srv = self.create_service(Master, "master", self.master_callback)
         self.terminate_service = self.create_service(
             TerminateProcess,
             "terminate_slam_or_navigation",
             self.terminate_slam_or_navigation_callback,
         )
-        robot_type = os.getenv("ROBOT_TYPE", "lino")
-        if robot_type == "lino":
-            self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
-        elif robot_type == "artic":
-            self.declare_parameter("active_nav_map", "office_res002_0523.yaml")
+        self.robot_type = os.getenv("ROBOT_TYPE", "lino")
+        self.use_sim = bool(os.getenv("USE_SIM", 0))
+
+        if self.use_sim:  # for simualtions
+            self.declare_parameter("active_nav_map", "turtlebot3_world.yaml")
+        else:  # for real robots
+            if self.robot_type == "lino":
+                self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
+            elif self.robot_type == "artic":
+                self.declare_parameter("active_nav_map", "office_res002_0523.yaml")
+
         self.launch_service = None
         self.event_loop = asyncio.get_event_loop()
 
@@ -53,10 +64,10 @@ class MasterAsyncService(Node):
 
     def send_set_parameters_request(self, param_value):
         param_name = "fitrobot_status"
-        val = ParameterValue(integer_value=param_value, type=ParameterType.PARAMETER_INTEGER)
-        req = SetParameters.Request(
-            parameters=[Parameter(name=param_name, value=val)]
+        val = ParameterValue(
+            integer_value=param_value, type=ParameterType.PARAMETER_INTEGER
         )
+        req = SetParameters.Request(parameters=[Parameter(name=param_name, value=val)])
         future = self.cli.call_async(req)
         future.add_done_callback(self.on_future_done)
 
@@ -66,7 +77,7 @@ class MasterAsyncService(Node):
             if response.results[0].successful:
                 self.get_logger().info("Service call successful")
         except Exception as e:
-            self.get_logger().error('Service call failed %r' % (e,))
+            self.get_logger().error("Service call failed %r" % (e,))
 
     async def send_get_parameters_request(self):
         req = GetParameters.Request()
@@ -123,7 +134,9 @@ class MasterAsyncService(Node):
 
     async def ensure_robotstatus_slam(self):
         while "slam_toolbox" not in self.get_node_names():
-            await asyncio.sleep(0.5)  # sleep for a short duration to prevent a busy loop
+            await asyncio.sleep(
+                0.5
+            )  # sleep for a short duration to prevent a busy loop
         self.status_pub.publish(RobotStatus(status=RobotStatus.SLAM))
         self.send_set_parameters_request(RobotStatus.SLAM)
 
@@ -162,39 +175,35 @@ class MasterAsyncService(Node):
             with open(log_file_path, "a") as log_file:
                 log_file.write(event.text.decode())
 
-        self.get_logger().info("...1")
-
-        robot_type = os.getenv("ROBOT_TYPE", "lino")
-        use_sim = bool(os.getenv("USE_SIM", 0))
-
-        if use_sim:
-            # for simualtions
+        if self.use_sim:  # for simualtions
             maploc = os.path.join(
                 get_package_share_directory("linorobot2_navigation"), "maps"
             )
             maskloc = os.path.join(
                 get_package_share_directory("linorobot2_navigation"), "masks"
             )
-        else:
-            # for real robots
+        else:  # for real robots
             maploc = os.path.join(get_package_share_directory("fitrobot"), "maps")
             maskloc = os.path.join(get_package_share_directory("fitrobot"), "masks")
+
         map_path = f"map:={maploc}/{map_name}"
+        mask_path = f"mask:={maskloc}/keepout_mask.{map_name}"
+        self.get_logger().info(f"map_path: {map_path}")
+        self.get_logger().info(f"mask_path: {mask_path}")
 
         launch_file_name = "navigation.launch.py"
-        if robot_type == "artic":
+        if self.robot_type == "artic":
             launch_file_name = "navigation_keepout.launch.py"
             path = get_share_file_path_from_package(
                 package_name="articubot_one", file_name=launch_file_name
             )
-        elif robot_type == "lino":
+        elif self.robot_type == "lino":
             launch_file_name = "navigation_keepout.launch.py"
             # launch_file_name = "navigation.launch.py"
             path = get_share_file_path_from_package(
                 package_name="linorobot2_navigation", file_name=launch_file_name
             )
-        launch_file_arguments = [map_path, "__log_level:=error"]
-        self.get_logger().info("...2")
+        launch_file_arguments = [map_path, mask_path, "__log_level:=error"]
         self.launch_service = launch.LaunchService(debug=False)
         launch_description = launch.LaunchDescription([
             RegisterEventHandler(
@@ -217,7 +226,6 @@ class MasterAsyncService(Node):
 
     async def run_slam(self):
         self.get_logger().debug("\n啟動建圖服務")
-        robot_type = os.getenv("ROBOT_TYPE", "lino")
         await self.clean_up()  # Clean up any existing launched tasks
 
         log_file_path = "/tmp/master_service_slam_log.txt"
@@ -227,11 +235,11 @@ class MasterAsyncService(Node):
                 log_file.write(event.text.decode())
 
         launch_file_name = "slam.launch.py"
-        if robot_type == "artic":
+        if self.robot_type == "artic":
             path = get_share_file_path_from_package(
                 package_name="articubot_one", file_name=launch_file_name
             )
-        elif robot_type == "lino":
+        elif self.robot_type == "lino":
             path = get_share_file_path_from_package(
                 package_name="linorobot2_navigation", file_name=launch_file_name
             )

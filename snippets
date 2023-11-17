@@ -48,11 +48,12 @@ ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
 ros2 launch linorobot2_gazebo gazebo.launch.py
 ros2 launch linorobot2_navigation navigation.launch.py sim:=true rviz:=true
 ros2 run fitrobot check_robot_status
-# ros2 run fitrobotcpp check_robot_status
+ros2 run fitrobotcpp check_robot_status
 # ros2 run fitrobot master_service
 ros2 run fitrobot master_async_service
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':' 站點1', 'x':0.5, 'y':1.5, 'z':0.707, 'w':0.707}}"
+ros2 run fitrobotcpp nav2_action_client
 
 
 
@@ -72,6 +73,7 @@ ros2 param get /check_robot_status_node fitrobot_status
 
 # fitrobot topic
 ros2 topic echo /target_station
+ros2 topic pub -1 /ok_to_go std_msgs/msg/Empty
 
 
 # debug
