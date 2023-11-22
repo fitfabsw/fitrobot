@@ -187,7 +187,7 @@ class MasterAsyncService(Node):
             maskloc = os.path.join(get_package_share_directory("fitrobot"), "masks")
 
         map_path = f"map:={maploc}/{map_name}"
-        mask_path = f"mask:={maskloc}/keepout_mask.{map_name}"
+        mask_path = f"mask:={maskloc}/keepout_mask_{map_name}"
         self.get_logger().info(f"map_path: {map_path}")
         self.get_logger().info(f"mask_path: {mask_path}")
 
