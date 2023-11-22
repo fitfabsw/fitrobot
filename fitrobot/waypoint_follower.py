@@ -78,10 +78,17 @@ class WaypointFollowerService(Node):
         while True:
             time.sleep(1)
             self.get_logger().info(f'目前排隊任務數{self.queue.qsize()}{self.can_add_task}')
-            if self.queue.qsize()>0 and self.can_add_task:
-                station = self.queue.get()
-                self.get_logger().info(f'開始執行站點{station}')
-                self.navigate_to(station)
+            if self.can_add_task:
+                if self.queue.qsize()>0:
+                    station = self.queue.get()
+                    self.get_logger().info(f'開始執行站點{station}')
+                    self.navigate_to([station, self.end_station])
+                elif not self.target_station:
+                    pass
+                elif self.target_station.type != "start":
+                    # If no station in the queue, navigate to the charging station
+                    self.get_logger().info(f'返回充電站')
+                    self.navigate_to([self.start_station])
 
     def waypoint_follower_callback(self, request, response):
         station = request.station
@@ -114,13 +121,12 @@ class WaypointFollowerService(Node):
 
         return pose
 
-    def navigate_to(self, station: Station):
+    def navigate_to(self, goal_stations: [Station]):
         self.lock.acquire()
         self.can_add_task = False
-        goal_stations = [station, self.end_station, self.start_station]
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
         self.navigator.followWaypoints(goal_poses)
-        self.target_station = station
+        self.target_station = goal_stations[0]
 
         self.get_logger().info(
             f"開始執行[{self.target_station.name}]"
@@ -135,7 +141,7 @@ class WaypointFollowerService(Node):
             feedback = self.navigator.getFeedback()
             if feedback and i % 10 == 0:
                 if current_status != feedback.current_waypoint:
-                    self.target_station = goal_stations[feedback.current_waypoint]  # feedback.current_waypoint in [0,1,2]
+                    self.target_station = goal_stations[feedback.current_waypoint]
                     self.get_logger().info(
                         f"前往[{self.target_station.name}]"
                         f"(x:{self.target_station.x},"
