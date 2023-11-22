@@ -1,7 +1,10 @@
+import time
 import rclpy
+import threading
+import queue
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
-from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
 from rcl_interfaces.msg import ParameterValue, ParameterType, Parameter
@@ -19,15 +22,22 @@ class WaypointFollowerService(Node):
         super().__init__('waypoint_follower_service')
         self.robot_status = None
         self.target_station = None
+        self.lock = threading.Lock()
+        self.can_add_task = True
         self.start_station = None
         self.end_station = None
+        self.queue = queue.Queue()
+
+        self.thread = threading.Thread(target=self.waypoint_queue_consumer)
+        self.thread.daemon = True  # Ensures the thread exits when the main program does
+        self.thread.start()
 
         self.get_logger().info("waypoint follower服務初始化")
         self.waypoint_srv = self.create_service(
             WaypointFollower,
             "waypoint_follower",
             self.waypoint_follower_callback,
-            callback_group=MutuallyExclusiveCallbackGroup(),
+            callback_group=ReentrantCallbackGroup(),
         )
         self.target_station_srv = self.create_service(
             TargetStation,
@@ -63,12 +73,20 @@ class WaypointFollowerService(Node):
         self.start_station, self.end_station = get_start_and_end_stations()
 
         self.navigator.waitUntilNav2Active()
+    
+    def waypoint_queue_consumer(self):
+        while True:
+            time.sleep(1)
+            self.get_logger().info(f'目前排隊任務數{self.queue.qsize()}{self.can_add_task}')
+            if self.queue.qsize()>0 and self.can_add_task:
+                station = self.queue.get()
+                self.get_logger().info(f'開始執行站點{station}')
+                self.navigate_to(station)
 
     def waypoint_follower_callback(self, request, response):
-        self.get_logger().info(f'waypoint follower服務開始')
         station = request.station
-        self.add_station(station)
-        self.get_logger().info(f'waypoint follower服務結束')
+        self.get_logger().info(f'將站點[{station.name}]放入佇列')
+        self.queue.put(station)
 
         return response
 
@@ -96,7 +114,9 @@ class WaypointFollowerService(Node):
 
         return pose
 
-    def add_station(self, station: Station):
+    def navigate_to(self, station: Station):
+        self.lock.acquire()
+        self.can_add_task = False
         goal_stations = [station, self.end_station, self.start_station]
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
         self.navigator.followWaypoints(goal_poses)
@@ -129,7 +149,9 @@ class WaypointFollowerService(Node):
         self.get_logger().info(
             # result.name in [SUCCEEDED, CANCELED, FAILED, UNKNOWN]
             f"站點[{goal_stations[feedback.current_waypoint].name}]任務狀態:{result.name}"
-        ) 
+        )
+        self.can_add_task = True
+        self.lock.release()
 
         return
 
