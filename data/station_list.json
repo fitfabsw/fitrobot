@@ -1,6 +1,5 @@
 {
     "office_res002_0914.yaml": {
-        "path": "~/fitrobot_map",
         "station_list": [
             {
                 "type": "start",
@@ -61,7 +60,6 @@
         ]
     },
     "office_res002_0523.yaml": {
-        "path": "~/fitrobot_map",
         "station_list": [
             {
                 "type": "start",
@@ -114,7 +112,6 @@
         ]
     },
     "office3_copy.yaml": {
-        "path": "~/fitrobot_map",
         "station_list": [
             {
                 "type": "start",
@@ -151,7 +148,6 @@
         ]
     },
     "turtlebot3_world.yaml": {
-        "path": "~/fitrobot_map",
         "station_list": [
             {
                 "type": "start",
@@ -188,7 +184,6 @@
         ]
     },
     "turtlebot3_house.yaml": {
-        "path": "~/fitrobot_map",
         "station_list": [
             {
                 "type": "start",
