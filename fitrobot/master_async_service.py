@@ -48,7 +48,7 @@ class MasterAsyncService(Node):
             self.declare_parameter("active_nav_map", "turtlebot3_world.yaml")
         else:  # for real robots
             if self.robot_type == "lino":
-                self.declare_parameter("active_nav_map", "office_res002_0914.yaml")
+                self.declare_parameter("active_nav_map", "lino2_office_20240129.yaml")
             elif self.robot_type == "artic":
                 self.declare_parameter("active_nav_map", "office_res002_0523.yaml")
 
