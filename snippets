@@ -39,6 +39,17 @@ ros2 service call /target_station fitrobot_interfaces/srv/TargetStation
 ros2 service call /terminate_slam_or_navigation fitrobot_interfaces/srv/TerminateProcess
 ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
 
+# =============================================================
+# Manually test waypoint follower service
+ros2 run fitrobot master_service
+ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'lino2_office_20240129.yaml' }"
+ros2 run fitrobotcpp check_robot_status
+ros2 run fitrobot waypoint_follower
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'Hank座位(站點)', 'x':1.7, 'y':3.0, 'z':0.0, 'w':1.0}}"
+ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'健身房門口(站點)', 'x':0.5, 'y':5.0, 'z':0.0, 'w':1.0}}"
+ros2 topic pub -1 /ok_to_go std_msgs/Empty
+ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
+
 
 # =============================================================
 # simulations for quick testing manually
