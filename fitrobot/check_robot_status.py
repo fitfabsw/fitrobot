@@ -1,3 +1,4 @@
+import subprocess
 import rclpy
 from rclpy.duration import Duration
 from rclpy.time import Time
@@ -8,10 +9,13 @@ from tf2_ros import Buffer, TransformListener
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
 from fitrobot_interfaces.msg import RobotStatus
+
+from std_msgs.msg import Int32
 from action_msgs.msg import GoalStatus, GoalStatusArray
 import tf2_py as tf2
 from rclpy.parameter import Parameter
 
+arrive_music_path = "/home/pi/garbage.wav"
 
 """
 GoalStatus
@@ -43,6 +47,17 @@ int8 NAV_WF_ARRIVED = 22
 int8 NAV_WF_COMPLETED = 23
 int8 NAV_WF_CANCEL = 24
 int8 NAV_WF_FAILED = 25
+
+// #define LED_STATES_OFF           0x00
+// #define LED_STATES_DRIVING       0x01
+// #define LED_STATES_REVERSE       0x02
+// #define LED_STATES_TURN_L        0x03
+// #define LED_STATES_TURN_R        0x04
+// #define LED_STATES_CAUTION_ZONE  0x05
+// #define LED_STATES_STANDBY       0x06
+// #define LED_STATES_FAULT         0x07
+// #define LED_STATES_CHARGING      0x08
+// #define LED_STATES_BATTERY_LOW   0x09
 """
 
 
@@ -61,6 +76,7 @@ class RobotStatusCheckNode(Node):
         )
         self.timer = self.create_timer(1.0, self.status_check)
         self.status_pub = self.create_publisher(RobotStatus, "robot_status", qos)
+        self.led_pub = self.create_publisher(Int32, "led_status", 10)
         self.get_logger().info("launch: standby")
         self.is_localized = False
         self.create_service(Trigger, "is_localized", self.srv_localized_callback)
@@ -78,6 +94,54 @@ class RobotStatusCheckNode(Node):
             10,
             callback_group=MutuallyExclusiveCallbackGroup(),
         )
+        self.led_sub = self.create_subscription(
+            RobotStatus, "robot_status", self.respond_led_status, 10
+        )
+        self.process = None
+
+    def respond_led_status(self, msg):
+        if msg.status in [RobotStatus.NAV_RUNNING, RobotStatus.NAV_WF_RUNNING]:
+            self.get_logger().info("NAV_RUNNING!!!!!")
+            self.led_pub.publish(Int32(data=1))
+            print(self.process)
+            if self.process:
+                self.get_logger().info("AAAAAAAAAAAAAAA")
+                self.process.terminate()
+                self.process = None
+            self.get_logger().info("NAV_RUNNING end!!!")
+
+        elif msg.status in [RobotStatus.NAV_ARRIVED]:
+            self.get_logger().info("NAV_ARRIVED!!!!!")
+            self.led_pub.publish(Int32(data=0))
+            self.process = subprocess.Popen(["aplay", arrive_music_path])
+            self.get_logger().info(self.process)
+
+        elif msg.status in [RobotStatus.NAV_WF_COMPLETED]:
+            self.get_logger().info("NAV_WF_COMPLETED!!!!!")
+            self.led_pub.publish(Int32(data=0))
+
+        elif msg.status in [RobotStatus.NAV_FAILED, RobotStatus.NAV_WF_FAILED]:
+            self.get_logger().info("NAV_FAILED!!!!!")
+            self.led_pub.publish(Int32(data=7))
+            if self.process:
+                self.get_logger().info("BBBBBBBBBBBBBBB")
+                self.process.terminate()
+                self.process = None
+
+        elif msg.status == RobotStatus.NAV_WF_ARRIVED:
+            self.get_logger().info("NAV_WF_ARRIVED!!!!!")
+            self.led_pub.publish(Int32(data=6))
+            self.process = subprocess.Popen(["aplay", arrive_music_path])
+
+        elif msg.status in [RobotStatus.NAV_CANCEL, RobotStatus.NAV_WF_CANCEL]:
+            self.get_logger().info("NAV_CANCEL!!!!!")
+            self.led_pub.publish(Int32(data=2))
+            if self.process:
+                self.get_logger().info("CCCCCCCCCCCCCCC")
+                self.process.terminate()
+
+        else:
+            self.led_pub.publish(Int32(data=0))
 
     def navigate_to_pose_goal_status_callback(self, msg):
         status = msg.status_list[-1].status
@@ -238,9 +302,9 @@ class RobotStatusCheckNode(Node):
             self.get_logger().error("Transform lookup failed: {0}".format(str(ex)))
 
     def set_rs_parameter(self, status_value):
-        self.set_parameters([
-            Parameter("fitrobot_status", Parameter.Type.INTEGER, status_value)
-        ])
+        self.set_parameters(
+            [Parameter("fitrobot_status", Parameter.Type.INTEGER, status_value)]
+        )
 
 
 def main(args=None):
