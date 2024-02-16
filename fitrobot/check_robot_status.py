@@ -1,3 +1,4 @@
+import os
 import subprocess
 import rclpy
 from rclpy.duration import Duration
@@ -9,13 +10,15 @@ from tf2_ros import Buffer, TransformListener
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSDurabilityPolicy, QoSHistoryPolicy, QoSReliabilityPolicy
 from fitrobot_interfaces.msg import RobotStatus
+from ament_index_python.packages import get_package_share_directory
 
 from std_msgs.msg import Int32
 from action_msgs.msg import GoalStatus, GoalStatusArray
 import tf2_py as tf2
 from rclpy.parameter import Parameter
 
-arrive_music_path = "/home/pi/garbage.wav"
+arrive_music_path = os.path.join(get_package_share_directory("fitrobot"), "resource","garbage.wav")
+
 
 
 """
