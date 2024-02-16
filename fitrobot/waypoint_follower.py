@@ -82,13 +82,13 @@ class WaypointFollowerService(Node):
                 if self.queue.qsize()>0:
                     station = self.queue.get()
                     self.get_logger().info(f'開始執行站點{station}')
-                    self.navigate_to([station, self.end_station])
+                    self.follow_waypoints([station, self.end_station])
                 elif not self.target_station:
                     pass
                 elif self.target_station.type != "start":
                     # If no station in the queue, navigate to the charging station
                     self.get_logger().info(f'返回充電站')
-                    self.navigate_to([self.start_station])
+                    self.go_to_station(self.start_station)
 
     def waypoint_follower_callback(self, request, response):
         station = request.station
@@ -121,7 +121,30 @@ class WaypointFollowerService(Node):
 
         return pose
 
-    def navigate_to(self, goal_stations: [Station]):
+    def go_to_station(self, station: Station):
+        self.lock.acquire()
+        self.can_add_task = False
+        goal_pose = self.convert_station_to_pose(station)
+        self.navigator.goToPose(goal_pose)
+        self.target_station = station
+
+        i = 0
+        current_status = None
+        while not self.navigator.isTaskComplete():
+            continue
+
+        result = self.navigator.getResult()
+
+        self.get_logger().info(
+            # result.name in [SUCCEEDED, CANCELED, FAILED, UNKNOWN]
+            f"站點[{station.name}]任務狀態:{result.name}"
+        )
+        self.can_add_task = True
+        self.lock.release()
+
+        return
+
+    def follow_waypoints(self, goal_stations: [Station]):
         self.lock.acquire()
         self.can_add_task = False
         goal_poses = list(map(self.convert_station_to_pose, goal_stations))
