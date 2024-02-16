@@ -17,6 +17,23 @@ from rclpy.parameter import Parameter
 
 arrive_music_path = "/home/pi/garbage.wav"
 
+
+"""
+This is based on below waypoint follower paramters
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: True
+    loop_rate: 20
+    stop_on_failure: true
+    waypoint_task_executor_plugin: "input_at_waypoint"
+    input_at_waypoint:
+      plugin: "nav2_waypoint_follower::InputAtWaypoint"
+      enabled: True
+      timeout: 10.0
+      input_topic: ok_to_go
+"""
+
 """
 GoalStatus
 -------------------
@@ -146,6 +163,7 @@ class RobotStatusCheckNode(Node):
 
     def navigate_to_pose_goal_status_callback(self, msg):
         status = msg.status_list[-1].status
+        self.get_logger().info(f"NP: {status}")
         if status == GoalStatus.STATUS_EXECUTING:
             if not self.waypoins_following:
                 fitrobot_status = RobotStatus.NAV_RUNNING
@@ -179,11 +197,12 @@ class RobotStatusCheckNode(Node):
             if not self.waypoins_following:
                 fitrobot_status = RobotStatus.NAV_FAILED
                 self.status_pub.publish(RobotStatus(status=fitrobot_status))
-                self.get_logger().info("NAV_CANCEL")
+                self.get_logger().info("NAV_FAILED")
                 self.set_rs_parameter(fitrobot_status)
 
     def follower_waypoints_status_callback(self, msg):
         status = msg.status_list[-1].status
+        self.get_logger().info(f"WF: {status}")
         if status == GoalStatus.STATUS_EXECUTING:
             self.waypoins_following = True
 

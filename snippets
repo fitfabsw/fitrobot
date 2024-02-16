@@ -92,3 +92,6 @@ ros2 topic pub -1 /led_status std_msgs/msg/Int32 "{data: 1}"
 sudo journalctl -u fitrobot_lino.bringup.service -f -n 1000
 tail -f /tmp/master_service_nav_log.txt -n 1000
 tail -f /tmp/master_service_slam_log.txt -n 1000
+ros2 topic echo /follow_waypoints/_action/status
+ros2 topic echo /navigate_to_pose/_action/status
+
