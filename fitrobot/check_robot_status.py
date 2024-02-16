@@ -114,7 +114,8 @@ class RobotStatusCheckNode(Node):
             self.get_logger().info("NAV_ARRIVED!!!!!")
             self.led_pub.publish(Int32(data=0))
             self.process = subprocess.Popen(["aplay", arrive_music_path])
-            self.get_logger().info(self.process)
+            # self.get_logger().info(self.process)
+            print(self.process)
 
         elif msg.status in [RobotStatus.NAV_WF_COMPLETED]:
             self.get_logger().info("NAV_WF_COMPLETED!!!!!")

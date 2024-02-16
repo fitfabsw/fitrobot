@@ -85,6 +85,7 @@ ros2 param get /check_robot_status_node fitrobot_status
 # fitrobot topic
 ros2 topic echo /target_station
 ros2 topic pub -1 /ok_to_go std_msgs/msg/Empty
+ros2 topic pub -1 /led_status std_msgs/msg/Int32 "{data: 1}"
 
 
 # debug
