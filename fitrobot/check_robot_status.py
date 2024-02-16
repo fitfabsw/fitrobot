@@ -116,47 +116,38 @@ class RobotStatusCheckNode(Node):
         )
         self.process = None
 
+    def terminate_led_process(self):
+        if self.process:
+            self.process.terminate()
+            self.process = None
+
     def respond_led_status(self, msg):
         if msg.status in [RobotStatus.NAV_RUNNING, RobotStatus.NAV_WF_RUNNING]:
-            self.get_logger().info("NAV_RUNNING!!!!!")
             self.led_pub.publish(Int32(data=1))
-            print(self.process)
-            if self.process:
-                self.get_logger().info("AAAAAAAAAAAAAAA")
-                self.process.terminate()
-                self.process = None
-            self.get_logger().info("NAV_RUNNING end!!!")
+            self.terminate_led_process()
 
         elif msg.status in [RobotStatus.NAV_ARRIVED]:
-            self.get_logger().info("NAV_ARRIVED!!!!!")
             self.led_pub.publish(Int32(data=0))
             self.process = subprocess.Popen(["aplay", arrive_music_path])
-            # self.get_logger().info(self.process)
-            print(self.process)
-
-        elif msg.status in [RobotStatus.NAV_WF_COMPLETED]:
-            self.get_logger().info("NAV_WF_COMPLETED!!!!!")
             self.led_pub.publish(Int32(data=0))
 
+        # elif msg.status in [RobotStatus.NAV_WF_COMPLETED]:
+        #     self.led_pub.publish(Int32(data=0))
+
         elif msg.status in [RobotStatus.NAV_FAILED, RobotStatus.NAV_WF_FAILED]:
-            self.get_logger().info("NAV_FAILED!!!!!")
             self.led_pub.publish(Int32(data=7))
-            if self.process:
-                self.get_logger().info("BBBBBBBBBBBBBBB")
-                self.process.terminate()
-                self.process = None
+            self.get_logger().info("NAV_FAILED!!!!!")
+            self.terminate_led_process()
 
         elif msg.status == RobotStatus.NAV_WF_ARRIVED:
-            self.get_logger().info("NAV_WF_ARRIVED!!!!!")
             self.led_pub.publish(Int32(data=6))
+            self.get_logger().info("NAV_WF_ARRIVED!!!!!")
             self.process = subprocess.Popen(["aplay", arrive_music_path])
 
         elif msg.status in [RobotStatus.NAV_CANCEL, RobotStatus.NAV_WF_CANCEL]:
-            self.get_logger().info("NAV_CANCEL!!!!!")
             self.led_pub.publish(Int32(data=2))
-            if self.process:
-                self.get_logger().info("CCCCCCCCCCCCCCC")
-                self.process.terminate()
+            self.get_logger().info("NAV_CANCEL!!!!!")
+            self.terminate_led_process()
 
         else:
             self.led_pub.publish(Int32(data=0))
