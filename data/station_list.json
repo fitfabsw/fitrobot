@@ -3,7 +3,7 @@
         "station_list": [
             {
                 "type": "start",
-                "name": "charging station(start)",
+                "name": "Charging station(start)",
                 "x": 0.0,
                 "y": 0.0,
                 "z": 0.707,
@@ -11,7 +11,7 @@
             },
             {
                 "type": "end",
-                "name": "Kevin's seat(end)",
+                "name": "LK's seat(end)",
                 "x": -0.5,
                 "y": 0.5,
                 "z": 0.0,
@@ -19,7 +19,7 @@
             },
             {
                 "type": "station",
-                "name": "Hank's seat(station)",
+                "name": "Hank's seat",
                 "x": 1.7,
                 "y": 3.0,
                 "z": 0.0,
@@ -27,9 +27,33 @@
             },
             {
                 "type": "station",
-                "name": "gym(station)",
+                "name": "Gym",
                 "x": 0.5,
                 "y": 5.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            {
+                "type": "station",
+                "name": "Wenlan's seat",
+                "x": -7.0,
+                "y": 15.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            {
+                "type": "station",
+                "name": "Alice's seat",
+                "x": -5.0,
+                "y": 13.0,
+                "z": 0.0,
+                "w": 1.0
+            },
+            {
+                "type": "station",
+                "name": "Meeting table",
+                "x": -8.0,
+                "y": 4.5,
                 "z": 0.0,
                 "w": 1.0
             }
