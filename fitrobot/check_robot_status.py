@@ -18,8 +18,7 @@ import tf2_py as tf2
 from rclpy.parameter import Parameter
 
 arrive_music_path = os.path.join(get_package_share_directory("fitrobot"), "resource","garbage.wav")
-
-
+loopmusic_script_path = os.path.join(get_package_share_directory("fitrobot"), "resource","loopmusic.sh")
 
 """
 This is based on below waypoint follower paramters
@@ -131,7 +130,8 @@ class RobotStatusCheckNode(Node):
 
         elif msg.status in [RobotStatus.NAV_ARRIVED]:
             self.led_pub.publish(Int32(data=0))
-            self.process = subprocess.Popen(["aplay", arrive_music_path])
+            # self.process = subprocess.Popen(["aplay", arrive_music_path])
+            self.process = subprocess.Popen([loopmusic_script_path, arrive_music_path])
             self.led_pub.publish(Int32(data=0))
 
         # elif msg.status in [RobotStatus.NAV_WF_COMPLETED]:
@@ -145,7 +145,8 @@ class RobotStatusCheckNode(Node):
         elif msg.status == RobotStatus.NAV_WF_ARRIVED:
             self.led_pub.publish(Int32(data=6))
             self.get_logger().info("NAV_WF_ARRIVED!!!!!")
-            self.process = subprocess.Popen(["aplay", arrive_music_path])
+            # self.process = subprocess.Popen(["aplay", arrive_music_path])
+            self.process = subprocess.Popen([loopmusic_script_path, arrive_music_path])
 
         elif msg.status in [RobotStatus.NAV_CANCEL, RobotStatus.NAV_WF_CANCEL]:
             self.led_pub.publish(Int32(data=2))

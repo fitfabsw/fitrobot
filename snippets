@@ -44,6 +44,10 @@ ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
 ros2 run fitrobot master_service
 ros2 service call /master fitrobot_interfaces/srv/Master "{'request_action':'navigation' , 'request_param':'lino2_office_20240129.yaml' }"
 ros2 run fitrobotcpp check_robot_status
+
+ros2 run fitrobot list_map_service
+
+
 ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'Hank座位(站點)', 'x':1.7, 'y':3.0, 'z':0.0, 'w':1.0}}"
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'健身房門口(站點)', 'x':0.5, 'y':5.0, 'z':0.0, 'w':1.0}}"
@@ -86,6 +90,11 @@ ros2 param get /check_robot_status_node fitrobot_status
 ros2 topic echo /target_station
 ros2 topic pub -1 /ok_to_go std_msgs/msg/Empty
 ros2 topic pub -1 /led_status std_msgs/msg/Int32 "{data: 1}"
+ros2 topic echo /deviceinfo
+ros2 topic pub -1 /laser_sleep std_msgs/msg/Int32 "{data: 1}"
+
+ros2 topic pub --rate 5 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
+
 
 
 # debug
