@@ -1,6 +1,8 @@
 import os
 import subprocess
 import rclpy
+import socket
+import websocket
 from rclpy.duration import Duration
 from rclpy.time import Time
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
@@ -232,8 +234,33 @@ class RobotStatusCheckNode(Node):
         self.tf_buffer.clear()
         return True if can_trasform else False
 
+    def is_websocket_ready(self):
+        # ssl_opts = {"cert_reqs": ssl.CERT_NONE, "check_hostname": False}
+        url = "ws://localhost:9090"
+        try:
+            ws = websocket.create_connection(url, timeout=1)
+            ws.close()
+        except Exception as e:
+            print("websocket not connected")
+            return False
+        return True
+
+    def is_network_ready(self):
+        try:
+            hostname = socket.gethostname()
+            ip = socket.gethostbyname(hostname)
+        except Exception as e:
+            ip = ""
+        has_non_local_ip = (len(ip)>=7) and (not ip.startswith("127."))
+        if not has_non_local_ip:
+            print(f"network not ready({ip})")
+        return has_non_local_ip
+
     def is_tf_odom_baselink_existed(self):
         return self.check_tf("odom", "base_link", 0.9)
+
+    def is_bringup_condition_satisfied(self):
+        return self.is_tf_odom_baselink_existed() and self.is_websocket_ready() and self.is_network_ready()
 
     def is_tf_odom_map_existed(self):
         return self.check_tf("map", "odom", 0.1)
@@ -254,7 +281,7 @@ class RobotStatusCheckNode(Node):
                 .integer_value
             )
             if robot_status == RobotStatus.STANDBY:
-                if self.is_tf_odom_baselink_existed():
+                if self.is_bringup_condition_satisfied():
                     self.get_logger().info("bringup")
                     self.status_pub.publish(RobotStatus(status=RobotStatus.BRINGUP))
                     self.set_rs_parameter(RobotStatus.BRINGUP)
@@ -265,7 +292,7 @@ class RobotStatusCheckNode(Node):
                     self.get_logger().info("NAV_PREPARE")
                     self.status_pub.publish(RobotStatus(status=RobotStatus.NAV_PREPARE))
                     self.set_rs_parameter(RobotStatus.NAV_PREPARE)
-                elif not self.is_tf_odom_baselink_existed():
+                elif not self.is_bringup_condition_satisfied():
                     self.get_logger().info("standby")
                     self.status_pub.publish(RobotStatus(status=RobotStatus.STANDBY))
                     self.set_rs_parameter(RobotStatus.STANDBY)
