@@ -120,7 +120,7 @@ class RobotStatusCheckNode(Node):
         )
         self.process = None
 
-    def terminate_led_process(self):
+    def stop_music(self):
         if self.process:
             self.process.terminate()
             self.process = None
@@ -128,7 +128,7 @@ class RobotStatusCheckNode(Node):
     def respond_led_status(self, msg):
         if msg.status in [RobotStatus.NAV_RUNNING, RobotStatus.NAV_WF_RUNNING]:
             self.led_pub.publish(Int32(data=1))
-            self.terminate_led_process()
+            self.stop_music()
 
         elif msg.status in [RobotStatus.NAV_ARRIVED]:
             self.led_pub.publish(Int32(data=0))
@@ -141,7 +141,7 @@ class RobotStatusCheckNode(Node):
         elif msg.status in [RobotStatus.NAV_FAILED, RobotStatus.NAV_WF_FAILED]:
             self.led_pub.publish(Int32(data=7))
             self.get_logger().info("NAV_FAILED!!!!!")
-            self.terminate_led_process()
+            self.stop_music()
 
         elif msg.status == RobotStatus.NAV_WF_ARRIVED:
             self.led_pub.publish(Int32(data=6))
@@ -151,7 +151,7 @@ class RobotStatusCheckNode(Node):
         elif msg.status in [RobotStatus.NAV_CANCEL, RobotStatus.NAV_WF_CANCEL]:
             self.led_pub.publish(Int32(data=2))
             self.get_logger().info("NAV_CANCEL!!!!!")
-            self.terminate_led_process()
+            self.stop_music()
 
         else:
             self.led_pub.publish(Int32(data=0))
