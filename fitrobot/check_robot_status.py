@@ -126,7 +126,12 @@ class RobotStatusCheckNode(Node):
             self.process = None
 
     def respond_led_status(self, msg):
-        if msg.status in [RobotStatus.NAV_RUNNING, RobotStatus.NAV_WF_RUNNING]:
+        if msg.status in [RobotStatus.STANDBY]:
+            # TODO: Borrow from reverse led effect, should be changed when standby has its own led effect
+            self.led_pub.publish(Int32(data=2))
+        elif msg.status in [RobotStatus.BRINGUP]:
+            self.led_pub.publish(Int32(data=0))
+        elif msg.status in [RobotStatus.NAV_RUNNING, RobotStatus.NAV_WF_RUNNING]:
             self.led_pub.publish(Int32(data=1))
             self.stop_music()
 
