@@ -1,7 +1,7 @@
 [Unit]
 Description=This is the fitrobot bringup service
-Requires=fitrobot.lino.service
-After=fitrobot.lino.service
+Requires=fitrobot_lino.status.service
+After=fitrobot_lino.status.service
 
 [Service]
 Environment="ROBOT_TYPE=lino" "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" "LINOROBOT2_BASE=zbotlino2" "LINOROBOT2_LASER_SENSOR=nanoscan3" "CYCLONEDDS_URI=/home/pi/cyclonedds.xml"
