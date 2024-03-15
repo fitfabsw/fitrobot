@@ -198,8 +198,8 @@ class MasterAsyncService(Node):
                 package_name="articubot_one", file_name=launch_file_name
             )
         elif self.robot_type == "lino":
-            launch_file_name = "navigation_keepout.launch.py"
-            # launch_file_name = "navigation.launch.py"
+            # launch_file_name = "navigation_keepout.launch.py"
+            launch_file_name = "navigation.launch.py"
             path = get_share_file_path_from_package(
                 package_name="linorobot2_navigation", file_name=launch_file_name
             )
