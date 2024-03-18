@@ -2,6 +2,7 @@ import time
 import rclpy
 import threading
 import queue
+from std_msgs.msg import String
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
@@ -13,7 +14,7 @@ from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
 from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master, CancelNav
-from fitrobot_interfaces.msg import Station, RobotStatus
+from fitrobot_interfaces.msg import Station, StationList
 from script.robot_navigator import BasicNavigator, TaskResult
 
 
@@ -68,6 +69,13 @@ class WaypointFollowerService(Node):
             callback_group=MutuallyExclusiveCallbackGroup(),
         )
 
+        self.station_queue_pub = self.create_publisher(
+            StationList,
+            "station_queue",
+            qos,
+            callback_group=MutuallyExclusiveCallbackGroup(),
+        )
+
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
@@ -81,6 +89,8 @@ class WaypointFollowerService(Node):
             if self.can_add_task:
                 if self.queue.qsize()>0:
                     station = self.queue.get()
+                    station_queue = StationList(station_list = list(self.queue.queue))
+                    self.station_queue_pub.publish(station_queue)
                     self.get_logger().info(f'開始執行站點{station}')
                     self.follow_waypoints([station, self.end_station])
                 elif not self.target_station:
@@ -94,6 +104,8 @@ class WaypointFollowerService(Node):
         station = request.station
         self.get_logger().info(f'將站點[{station.name}]放入佇列')
         self.queue.put(station)
+        station_queue = StationList(station_list = list(self.queue.queue))
+        self.station_queue_pub.publish(station_queue)
 
         return response
 
