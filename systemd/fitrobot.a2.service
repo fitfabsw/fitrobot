@@ -5,9 +5,10 @@ StartLimitBurst=3
 
 
 [Service]
+Environment="ROBOT_TYPE=artic" "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
 User=pi
 WorkingDirectory=/home/pi/zbotartic_ws
-ExecStart=/bin/bash -c "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp && source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch articubot_one launch_robot.launch.py"
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch articubot_one launch_robot.launch.py"
 TimeoutStartSec=30s
 Restart=on-failure
 RestartSec=5s

@@ -2,15 +2,16 @@
 Description=This is the fitrobot bringup service
 # StartLimitIntervalSec=360
 # StartLimitBurst=3
-Requires=fitrobot.a2.service
-After=fitrobot.a2.service
+Requires=fitrobot.status.service
+After=fitrobot.status.service
 
 [Service]
+Environment="ROBOT_TYPE=artic" "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
 User=pi
 WorkingDirectory=/home/pi/zbotartic_ws
 #ExecStartPre=/bin/sleep 30
 TimeoutStartSec=30
-ExecStart=/bin/bash -c "export ROBOT_TYPE=artic && export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp && source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch fitrobot bringup.launch.py"
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 launch fitrobot bringup.launch.py"
 # Restart=on-failure
 # RestartSec=120s
 

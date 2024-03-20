@@ -1,0 +1,17 @@
+[Unit]
+Description=This is the fitrobot check_robot_status service
+Requires=fitrobot.a2.service
+After=fitrobot.a2.service
+
+[Service]
+Environment="ROBOT_TYPE=artic" "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp"
+User=pi
+WorkingDirectory=/home/pi/zbotartic_ws
+TimeoutStartSec=30
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source /home/pi/zbotartic_ws/install/setup.bash && /opt/ros/humble/bin/ros2 run fitrobot check_robot_status"
+Restart=on-failure
+RestartSec=5s
+
+
+[Install]
+WantedBy=multi-user.target
