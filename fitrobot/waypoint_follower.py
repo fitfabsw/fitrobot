@@ -1,7 +1,6 @@
 import time
 import rclpy
 import threading
-import queue
 from std_msgs.msg import String
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
@@ -13,6 +12,7 @@ from rcl_interfaces.srv import SetParameters
 from action_msgs.msg import GoalStatusArray
 from geometry_msgs.msg import PoseStamped
 from common.utils import get_start_and_end_stations
+from common.queue import ListQueue
 from fitrobot_interfaces.srv import WaypointFollower, TargetStation, Master, CancelNav
 from fitrobot_interfaces.msg import Station, StationList
 from script.robot_navigator import BasicNavigator, TaskResult
@@ -27,7 +27,7 @@ class WaypointFollowerService(Node):
         self.can_add_task = True
         self.start_station = None
         self.end_station = None
-        self.queue = queue.Queue()
+        self.queue = ListQueue()
 
         self.thread = threading.Thread(target=self.waypoint_queue_consumer)
         self.thread.daemon = True  # Ensures the thread exits when the main program does
@@ -79,7 +79,7 @@ class WaypointFollowerService(Node):
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
         self.start_station, self.end_station = get_start_and_end_stations()
-
+   
         self.navigator.waitUntilNav2Active()
     
     def waypoint_queue_consumer(self):
@@ -88,9 +88,7 @@ class WaypointFollowerService(Node):
             self.get_logger().info(f'目前排隊任務數{self.queue.qsize()}{self.can_add_task}')
             if self.can_add_task:
                 if self.queue.qsize()>0:
-                    station = self.queue.get()
-                    station_queue = StationList(station_list = list(self.queue.queue))
-                    self.station_queue_pub.publish(station_queue)
+                    station = self.queue.get(0)
                     self.get_logger().info(f'開始執行站點{station}')
                     self.follow_waypoints([station, self.end_station])
                 elif not self.target_station:
@@ -102,8 +100,8 @@ class WaypointFollowerService(Node):
 
     def waypoint_follower_callback(self, request, response):
         station = request.station
-        self.get_logger().info(f'將站點[{station.name}]放入佇列')
         self.queue.put(station)
+        self.get_logger().info(f'將站點[{station.name}]放入佇列，目前佇列長度{self.queue.qsize()}')
         station_queue = StationList(station_list = list(self.queue.queue))
         self.station_queue_pub.publish(station_queue)
 
@@ -115,10 +113,26 @@ class WaypointFollowerService(Node):
         self.get_logger().info("target station服務結束")
         return response
 
+    def remove_station_from_queue(self, idx):
+        station = self.queue.get(idx) 
+        self.queue.remove_nth(idx)
+        self.get_logger().info(f'將站點[{station.name}] ({idx}) 移除，目前佇列長度{self.queue.qsize()}')
+
+        station_queue = StationList(station_list = list(self.queue.queue))
+        self.station_queue_pub.publish(station_queue)
+
     def cancel_nav_callback(self, request, response):
         self.get_logger().info("cancel nav服務開始")
-        self.navigator.cancelTask()
+        idx = request.idx
         response.ack = "SUCCESS"
+        if idx == 0:
+            self.navigator.cancelTask()
+        
+        if idx >=0 and idx <self.queue.qsize():
+            self.remove_station_from_queue(idx)
+        else:
+            response.ack = "FAIL"
+        
         self.get_logger().info("cancel nav服務結束")
         return response
 
@@ -186,11 +200,14 @@ class WaypointFollowerService(Node):
                     current_status = feedback.current_waypoint
 
         result = self.navigator.getResult()
+        if result != TaskResult.CANCELED:
+            self.remove_station_from_queue(0)
 
         self.get_logger().info(
             # result.name in [SUCCEEDED, CANCELED, FAILED, UNKNOWN]
             f"站點[{goal_stations[feedback.current_waypoint].name}]任務狀態:{result.name}"
         )
+        
         self.can_add_task = True
         self.lock.release()
 
