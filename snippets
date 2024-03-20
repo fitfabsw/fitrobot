@@ -52,7 +52,7 @@ ros2 run fitrobot waypoint_follower
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'Hank座位(站點)', 'x':1.7, 'y':3.0, 'z':0.0, 'w':1.0}}"
 ros2 service call /waypoint_follower fitrobot_interfaces/srv/WaypointFollower "{'station':{'type': 'station', 'name':'健身房門口(站點)', 'x':0.5, 'y':5.0, 'z':0.0, 'w':1.0}}"
 ros2 topic pub -1 /ok_to_go std_msgs/Empty
-ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav
+ros2 service call /cancel_nav fitrobot_interfaces/srv/CancelNav "{'idx': 1}"
 
 
 # =============================================================
@@ -94,7 +94,7 @@ ros2 topic echo /deviceinfo
 ros2 topic pub -1 /laser_sleep std_msgs/msg/Int32 "{data: 1}"
 
 ros2 topic pub --rate 5 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
-
+ros2 topic echo /station_queue
 
 
 # debug
