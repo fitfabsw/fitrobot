@@ -1,0 +1,17 @@
+[Unit]
+Description=This is the fitrobot check_robot_status service
+Requires=fitrobot.lino.service
+After=fitrobot.lino.service
+
+[Service]
+Environment="ROBOT_TYPE=lino" "RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" "LINOROBOT2_BASE=zbotlino2" "LINOROBOT2_LASER_SENSOR=nanoscan3" "CYCLONEDDS_URI=/home/pi/cyclonedds.xml"
+User=pi
+WorkingDirectory=/home/pi/zbotlino_ws
+TimeoutStartSec=30
+ExecStart=/bin/bash -c "source /home/pi/ros2_humble/install/setup.bash && source /home/pi/zbotlino_ws/install/setup.bash && ros2 run fitrobot check_robot_status"
+Restart=on-failure
+RestartSec=5s
+
+
+[Install]
+WantedBy=multi-user.target
