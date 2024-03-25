@@ -43,6 +43,7 @@ class MasterAsyncService(Node):
         )
         self.robot_type = os.getenv("ROBOT_TYPE", "lino")
         self.use_sim = bool(os.getenv("USE_SIM", 0))
+        self.package_name = {'artic':"articubot_one", "lino":"linorobot2_navigation"}[self.robot_type]
 
         if self.use_sim:  # for simualtions
             self.declare_parameter("active_nav_map", "turtlebot3_world.yaml")
@@ -174,8 +175,9 @@ class MasterAsyncService(Node):
         def to_file(event):
             with open(log_file_path, "a") as log_file:
                 log_file.write(event.text.decode())
-
+        launch_file_name = "navigation_keepout.launch.py"
         if self.use_sim:  # for simualtions
+            launch_file_name = "navigation.launch.py"
             maploc = os.path.join(
                 get_package_share_directory("linorobot2_navigation"), "maps"
             )
@@ -191,18 +193,10 @@ class MasterAsyncService(Node):
         self.get_logger().info(f"map_path: {map_path}")
         self.get_logger().info(f"mask_path: {mask_path}")
 
-        launch_file_name = "navigation.launch.py"
-        if self.robot_type == "artic":
-            launch_file_name = "navigation_keepout.launch.py"
-            path = get_share_file_path_from_package(
-                package_name="articubot_one", file_name=launch_file_name
-            )
-        elif self.robot_type == "lino":
-            # launch_file_name = "navigation_keepout.launch.py"
-            launch_file_name = "navigation.launch.py"
-            path = get_share_file_path_from_package(
-                package_name="linorobot2_navigation", file_name=launch_file_name
-            )
+        path = get_share_file_path_from_package(
+            package_name=self.package_name, file_name=launch_file_name
+        )
+        
         launch_file_arguments = [map_path, mask_path, "__log_level:=error"]
         self.launch_service = launch.LaunchService(debug=False)
         launch_description = launch.LaunchDescription([
@@ -235,14 +229,10 @@ class MasterAsyncService(Node):
                 log_file.write(event.text.decode())
 
         launch_file_name = "slam.launch.py"
-        if self.robot_type == "artic":
-            path = get_share_file_path_from_package(
-                package_name="articubot_one", file_name=launch_file_name
-            )
-        elif self.robot_type == "lino":
-            path = get_share_file_path_from_package(
-                package_name="linorobot2_navigation", file_name=launch_file_name
-            )
+        path = get_share_file_path_from_package(
+            package_name=self.package_name, file_name=launch_file_name
+        )
+        
         launch_file_arguments = ["__log_level:=error"]
         self.get_logger().info("...2")
         self.launch_service = launch.LaunchService(debug=False)
