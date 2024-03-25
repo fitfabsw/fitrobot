@@ -75,6 +75,8 @@ class WaypointFollowerService(Node):
             qos,
             callback_group=MutuallyExclusiveCallbackGroup(),
         )
+        station_queue = StationList(station_list = [])
+        self.station_queue_pub.publish(station_queue)
 
         self.navigator = BasicNavigator()
         self.wait_for_service("/master", Master)
